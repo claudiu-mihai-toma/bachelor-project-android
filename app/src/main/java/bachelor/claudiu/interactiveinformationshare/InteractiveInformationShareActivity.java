@@ -1,5 +1,6 @@
 package bachelor.claudiu.interactiveinformationshare;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -16,7 +17,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-public class InteractiveInformationShareActivity extends AppCompatActivity {
+public class InteractiveInformationShareActivity extends Activity {
 
     private static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     private static final int REQUEST_CODE = 0;
@@ -69,24 +70,31 @@ public class InteractiveInformationShareActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_interactive_information_share);
 
-        TextView intentReceivedTextView = (TextView) findViewById(R.id.intent_received_text_view);
+        //TextView intentReceivedTextView = (TextView) findViewById(R.id.intent_received_text_view);
         Intent intent = getIntent();
         if (intent != null) {
+            Log.d(LOGS, "Intent received ["+intent.getExtras()+"]");
             String textShared = intent.getStringExtra(Intent.EXTRA_TEXT);
             if (textShared != null) {
-                intentReceivedTextView.setText(textShared);
+                //intentReceivedTextView.setText(textShared);
+                Log.d(LOGS, "Shared text ["+textShared+"]");
                 content = textShared;
                 startQRActivity();
             } else {
-                intentReceivedTextView.setText("Intent received error! :(");
+                //intentReceivedTextView.setText("Intent received error! :(");
                 Toast.makeText(this, "Something went wrong!", Toast.LENGTH_LONG).show();
                 finish();
             }
+        }else {
+            //intentReceivedTextView.setText("Intent received error! :(");
+            Toast.makeText(this, "Something went wrong!", Toast.LENGTH_LONG).show();
+            finish();
         }
     }
 
     private void startQRActivity()
     {
+        Log.d(LOGS, "Starting QR Activity with content ["+content+"]");
         try {
             //start the scanning activity from the com.google.zxing.client.android.SCAN intent
             Intent intent = new Intent(ACTION_SCAN);
@@ -100,19 +108,19 @@ public class InteractiveInformationShareActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        TextView qrCodeReceivedTextView = (TextView) findViewById(R.id.qr_code_received_text_view);
+        //TextView qrCodeReceivedTextView = (TextView) findViewById(R.id.qr_code_received_text_view);
         if (requestCode == REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 //get the extras that are returned from the intent
                 String contents = data.getStringExtra("SCAN_RESULT");
                 String format = data.getStringExtra("SCAN_RESULT_FORMAT");
                 //Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG).show();
-                qrCodeReceivedTextView.setText("Content:[" + contents + "] Format:[" + format+"]");
+                //qrCodeReceivedTextView.setText("Content:[" + contents + "] Format:[" + format+"]");
                 desktopAddress = contents;
                 sendContentToDesktop();
             }
             else{
-                qrCodeReceivedTextView.setText("QR error! :(");
+                //qrCodeReceivedTextView.setText("QR error! :(");
             }
         }
     }
