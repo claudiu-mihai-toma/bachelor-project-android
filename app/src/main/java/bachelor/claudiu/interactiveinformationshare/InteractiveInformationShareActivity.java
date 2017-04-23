@@ -8,10 +8,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Timer;
@@ -37,15 +39,17 @@ public class InteractiveInformationShareActivity extends Activity {
 
             try {
                 Log.d(LOGS, "Sending data " + mContent + " to " + mDesktopAddress);
-                Log.d(LOGS, "Creating socket...");
-                DatagramSocket datagramSocket = new DatagramSocket();
-                Log.d(LOGS, "Socket created!");
-                sendData = mContent.getBytes();
-                InetAddress inetAddress = InetAddress.getByName(mDesktopAddress);
-                Log.d(LOGS, "Destination address " + inetAddress.getHostName());
-                DatagramPacket datagramPacket = new DatagramPacket(sendData, sendData.length, inetAddress, CONTENT_RECEIVER_PORT);
 
-                datagramSocket.send(datagramPacket);
+                Log.d(LOGS, "Creating socket...");
+                Socket socket = new Socket(mDesktopAddress, CONTENT_RECEIVER_PORT);
+                Log.d(LOGS, "Socket created!");
+
+                DataOutputStream os = new DataOutputStream(socket.getOutputStream());
+                os.writeUTF(mContent);
+
+                os.close();
+                socket.close();
+
             } catch (SocketException e) {
                 Log.d(LOGS, "Sending failed! 1");
                 e.printStackTrace();
