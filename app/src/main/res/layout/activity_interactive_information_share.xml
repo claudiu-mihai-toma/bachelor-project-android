@@ -5,18 +5,25 @@
     android:layout_height="match_parent"
     tools:context="bachelor.claudiu.interactiveinformationshare.InteractiveInformationShareActivity"
     android:orientation="vertical">
-    <TextView
-        android:id="@+id/intent_received_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="default intent text"
-        android:gravity="center"/>
 
-    <TextView
-        android:id="@+id/qr_code_received_text_view"
+    <Button
+        android:id="@+id/qr_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="default qr text"
-        android:gravity="center"/>
+        android:layout_gravity="center"
+        android:text="QR" />
+
+    <Button
+        android:id="@+id/camera_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="CAMERA" />
+
+    <ImageView
+        android:id="@+id/photo_imageview"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_gravity="center"/>
 
 </LinearLayout>
