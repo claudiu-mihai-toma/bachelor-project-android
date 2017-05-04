@@ -1,6 +1,13 @@
 package bachelor.claudiu.interactiveinformationshare;
 
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.hardware.Camera;
+import android.util.Log;
+
 import java.util.Timer;
+
+import static bachelor.claudiu.interactiveinformationshare.InteractiveInformationShareActivity.LOGS;
 
 /**
  * Created by claudiu on 04.05.2017.
@@ -15,5 +22,44 @@ public class Utils
 			timer.cancel();
 			timer.purge();
 		}
+	}
+
+	public static Bitmap RotateBitmap(Bitmap source, float angle)
+	{
+		Matrix matrix = new Matrix();
+		matrix.postRotate(angle);
+		return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+	}
+
+
+	public static Camera getFrontCameraInstance()
+	{
+		return getCameraInstance(Camera.CameraInfo.CAMERA_FACING_FRONT);
+	}
+
+	public static Camera getBackCameraInstance()
+	{
+		return getCameraInstance(Camera.CameraInfo.CAMERA_FACING_BACK);
+	}
+
+	/**
+	 * A safe way to get an instance of the Camera object.
+	 */
+	public static Camera getCameraInstance(int cameraIndex)
+	{
+		Camera c = null;
+		try
+		{
+			Log.d(LOGS, "Getting camera instance.");
+			// attempt to get a Camera instance
+			c = Camera.open(cameraIndex);
+			Log.d(LOGS, "GOT camera instance.");
+		}
+		catch (Exception e)
+		{
+			// Camera is not available (in use or does not exist)
+			Log.d(LOGS, e.toString());
+		}
+		return c; // returns null if camera is unavailable
 	}
 }
