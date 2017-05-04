@@ -19,12 +19,14 @@ import java.util.TimerTask;
 
 public class BroadcastBeaconTimerTask extends TimerTask {
 
-    private static final int BEACON_PORT = 9751;
     private static final String BEACON_MESSAGE = "interactive_information_share";
     private static final String DEFAULT_BROADCAST_ADDRESS = "255.255.255.255";
+    static final int BEACON_PERIOD = 100;
     private DatagramSocket mDatagramSocket;
+    private int mPort;
 
-    public BroadcastBeaconTimerTask() throws SocketException, UnknownHostException {
+    public BroadcastBeaconTimerTask(int port) throws SocketException, UnknownHostException {
+        mPort=port;
         mDatagramSocket = new DatagramSocket();
         mDatagramSocket.setBroadcast(true);
     }
@@ -38,7 +40,7 @@ public class BroadcastBeaconTimerTask extends TimerTask {
                         BEACON_MESSAGE.getBytes(),
                         BEACON_MESSAGE.length(),
                         InetAddress.getByName(DEFAULT_BROADCAST_ADDRESS),
-                        BEACON_PORT);
+                        mPort);
                 mDatagramSocket.send(sendPacket);
             } catch (Exception e) {
             }
@@ -64,7 +66,7 @@ public class BroadcastBeaconTimerTask extends TimerTask {
                                 BEACON_MESSAGE.getBytes(),
                                 BEACON_MESSAGE.length(),
                                 broadcast,
-                                BEACON_PORT);
+                                mPort);
                         mDatagramSocket.send(sendPacket);
 
                         Log.d(InteractiveInformationShareActivity.LOGS, "Sending broadcast to: " + broadcast);
