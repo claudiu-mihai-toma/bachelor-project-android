@@ -6,8 +6,8 @@ import android.util.Log;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+
+import static bachelor.claudiu.interactiveinformationshare.InteractiveInformationShareActivity.LOGS;
 
 /**
  * Created by claudiu on 04.05.2017.
@@ -32,12 +32,12 @@ class SendContentAsyncTask extends AsyncTask<Void, Void, Void>
 	{
 		try
 		{
-			Log.d(InteractiveInformationShareActivity.LOGS, "Sending data " + mContent + " to " +
+			Log.d(LOGS, "Sending data " + mContent + " to " +
 					mDesktopAddress);
 
-			Log.d(InteractiveInformationShareActivity.LOGS, "Creating socket...");
+			Log.d(LOGS, "Creating socket...");
 			Socket socket = new Socket(mDesktopAddress, CONTENT_RECEIVER_PORT);
-			Log.d(InteractiveInformationShareActivity.LOGS, "Socket created!");
+			Log.d(LOGS, "Socket created!");
 
 			DataOutputStream os = new DataOutputStream(socket.getOutputStream());
 
@@ -49,8 +49,7 @@ class SendContentAsyncTask extends AsyncTask<Void, Void, Void>
 		}
 		catch (IOException e)
 		{
-			/*Log.d(LOGS, "Sending failed!");
-			e.printStackTrace();*/
+			Log.d(LOGS, "Sending failed!");
 		}
 
 		return null;

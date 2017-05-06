@@ -26,7 +26,6 @@ public class CameraTimer
 	public CameraTimer(PictureTakenCallback pictureTakenCallback)
 	{
 		mPictureTakenCallback = pictureTakenCallback;
-		mTimer = new Timer();
 		mCamera = Utils.getFrontCameraInstance();
 		if (mCamera == null)
 		{
@@ -38,9 +37,9 @@ public class CameraTimer
 
 	public void schedule()
 	{
+		mTimer = new Timer();
 		mTimer.schedule(new CameraTimerTask(mPictureTakenCallback, mCamera), 0, CAMERA_PERIOD);
 	}
-
 
 	private void setCameraParameters()
 	{

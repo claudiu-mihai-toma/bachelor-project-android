@@ -13,15 +13,8 @@
         android:layout_gravity="center"
         android:text="QR" />
 
-    <Button
-        android:id="@+id/camera_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="CAMERA" />
-
     <ImageView
-        android:id="@+id/photo_imageview"
+        android:id="@+id/picture_imageview"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_gravity="center"/>

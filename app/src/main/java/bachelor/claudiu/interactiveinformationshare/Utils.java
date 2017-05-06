@@ -1,10 +1,15 @@
 package bachelor.claudiu.interactiveinformationshare;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.util.Log;
 
+import java.util.List;
 import java.util.Timer;
 
 import static bachelor.claudiu.interactiveinformationshare.InteractiveInformationShareActivity.LOGS;
@@ -61,5 +66,12 @@ public class Utils
 			Log.d(LOGS, e.toString());
 		}
 		return c; // returns null if camera is unavailable
+	}
+
+	public static boolean isCallable(Activity activity, Intent intent)
+	{
+		List<ResolveInfo> list = activity.getPackageManager().queryIntentActivities(intent,
+				PackageManager.MATCH_DEFAULT_ONLY);
+		return list.size() > 0;
 	}
 }

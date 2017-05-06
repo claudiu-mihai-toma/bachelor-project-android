@@ -17,15 +17,15 @@ import java.util.TimerTask;
 
 public class PhonePictureStream
 {
-	public static int IMAGE_STREAM_SERVER_PORT = 55001;
-	public static int IMAGE_STREAM_CLIENT_PORT = 55002;
+	public static final int IMAGE_STREAM_SERVER_PORT = 55001;
+	public static final int IMAGE_STREAM_CLIENT_PORT = 55002;
 	private static final int SOCKET_TIMEOUT = 500;
 
-	private Timer mBeaconTimer = new Timer();
-	private Timer mServerTimer = new Timer();
+	private Timer mBeaconTimer;
+	private Timer mServerTimer;
 	private ConnectionsManager mConnectionsManager = new ConnectionsManager();
 	private ServerSocket mServerSocket;
-	ByteArrayOutputStream mByteArrayOutputStream = new ByteArrayOutputStream();
+	private ByteArrayOutputStream mByteArrayOutputStream = new ByteArrayOutputStream();
 
 	private class SocketAccepter extends TimerTask
 	{
@@ -54,7 +54,10 @@ public class PhonePictureStream
 
 	public void open() throws SocketException, UnknownHostException
 	{
+		mServerTimer = new Timer();
 		mServerTimer.schedule(new SocketAccepter(), 0, SocketAccepter.SOCKET_ACCEPTER_PERIOD);
+
+		mBeaconTimer = new Timer();
 		mBeaconTimer.schedule(new BroadcastBeaconTimerTask(IMAGE_STREAM_CLIENT_PORT), 0, BroadcastBeaconTimerTask.BEACON_PERIOD);
 	}
 
