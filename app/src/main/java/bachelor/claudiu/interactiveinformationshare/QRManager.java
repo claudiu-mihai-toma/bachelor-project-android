@@ -16,7 +16,6 @@ public class QRManager
 {
 	private static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
 	public static final int QR_REQUEST_CODE = 0;
-	private static final int QR_BEACON_PORT = 9751;
 
 	private Activity mActivity;
 	private Timer mTimer;
@@ -29,7 +28,7 @@ public class QRManager
 	public void startQRActivity() throws SocketException, UnknownHostException
 	{
 		mTimer = new Timer();
-		mTimer.schedule(new BroadcastBeaconTimerTask(QR_BEACON_PORT), 0,
+		mTimer.schedule(new BroadcastBeaconTimerTask(Constants.Ports.QR_BEACON_PORT), 0,
 				BroadcastBeaconTimerTask.BEACON_PERIOD);
 
 		Intent intent = new Intent(ACTION_SCAN);

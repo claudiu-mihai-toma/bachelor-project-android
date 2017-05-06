@@ -17,9 +17,8 @@ import java.util.TimerTask;
 
 public class PhonePictureStream
 {
-	public static final int IMAGE_STREAM_SERVER_PORT = 55001;
-	public static final int IMAGE_STREAM_CLIENT_PORT = 55002;
 	private static final int SOCKET_TIMEOUT = 500;
+	public static final int PHONE_PICTURE_SOCKET_TIMEOUT = 3000;
 
 	private Timer mBeaconTimer;
 	private Timer mServerTimer;
@@ -37,6 +36,7 @@ public class PhonePictureStream
 			try
 			{
 				Socket socket = mServerSocket.accept();
+				socket.setSoTimeout(PHONE_PICTURE_SOCKET_TIMEOUT);
 				mConnectionsManager.addConnection(new Connection(socket));
 			}
 			catch (IOException e)
@@ -48,7 +48,7 @@ public class PhonePictureStream
 
 	public PhonePictureStream() throws IOException
 	{
-		mServerSocket = new ServerSocket(IMAGE_STREAM_SERVER_PORT);
+		mServerSocket = new ServerSocket(Constants.Ports.PICTURE_STREAM_SERVER_PORT);
 		mServerSocket.setSoTimeout(SOCKET_TIMEOUT);
 	}
 
@@ -58,7 +58,8 @@ public class PhonePictureStream
 		mServerTimer.schedule(new SocketAccepter(), 0, SocketAccepter.SOCKET_ACCEPTER_PERIOD);
 
 		mBeaconTimer = new Timer();
-		mBeaconTimer.schedule(new BroadcastBeaconTimerTask(IMAGE_STREAM_CLIENT_PORT), 0, BroadcastBeaconTimerTask.BEACON_PERIOD);
+		mBeaconTimer.schedule(new BroadcastBeaconTimerTask(Constants.Ports.PICTURE_STREAM_BEACON_PORT), 0,
+				BroadcastBeaconTimerTask.BEACON_PERIOD);
 	}
 
 	public void send(Bitmap picture)

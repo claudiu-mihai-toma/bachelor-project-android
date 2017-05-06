@@ -14,8 +14,6 @@ import static bachelor.claudiu.interactiveinformationshare.InteractiveInformatio
  */
 class SendContentAsyncTask extends AsyncTask<Void, Void, Void>
 {
-	private static final int CONTENT_RECEIVER_PORT = 9753;
-
 	private ContentSentCallback mContentSentCallback;
 	private String mDesktopAddress;
 	private String mContent;
@@ -36,7 +34,7 @@ class SendContentAsyncTask extends AsyncTask<Void, Void, Void>
 					mDesktopAddress);
 
 			Log.d(LOGS, "Creating socket...");
-			Socket socket = new Socket(mDesktopAddress, CONTENT_RECEIVER_PORT);
+			Socket socket = new Socket(mDesktopAddress, Constants.Ports.CONTENT_RECEIVER_PORT);
 			Log.d(LOGS, "Socket created!");
 
 			DataOutputStream os = new DataOutputStream(socket.getOutputStream());
