@@ -14,7 +14,7 @@ import java.util.Timer;
 
 public class CameraTimer
 {
-	private static final int CAMERA_PERIOD = 1;
+	private static final int     CAMERA_PERIOD   = 1;
 
 	private Timer                mTimer;
 	private Camera               mCamera;
@@ -25,7 +25,16 @@ public class CameraTimer
 		Utils.log(Constants.Classes.CAMERA_TIMER, "Constructing...");
 
 		mPictureTakenCallback = pictureTakenCallback;
-		mCamera = Utils.getFrontCameraInstance();
+
+		if (InteractiveInformationShareActivity.USE_BACK_CAMERA)
+		{
+			mCamera = Utils.getBackCameraInstance();
+		}
+		else
+		{
+			mCamera = Utils.getFrontCameraInstance();
+		}
+
 		if (mCamera == null)
 		{
 			throw new RuntimeException("Camera is not available (in use or does not exist)!");
@@ -65,6 +74,7 @@ public class CameraTimer
 		Camera.Size smallSize = sizes.get(sizes.size() - 1);
 		params.setPictureSize(smallSize.width, smallSize.height);
 
+		if (true)
 		{
 			params.setPreviewSize(smallSize.width, smallSize.height);
 

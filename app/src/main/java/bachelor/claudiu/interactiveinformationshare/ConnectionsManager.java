@@ -26,33 +26,108 @@ public class ConnectionsManager
 		Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Connection added.");
 	}
 
-	public void send(byte[] data)
+	public void send(final byte[] data)
 	{
 		Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Sending data of length: " + data.length);
 		synchronized (mObject)
 		{
-			for (Connection connection : mConnections)
+			Thread thread = new Thread(new Runnable()
 			{
-				if (!connection.isBroken())
+				@Override
+				public void run()
 				{
-					try
+					for (Connection connection : mConnections)
 					{
-						//TODO: Run on individual threads!
-						Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Sending data to some connection...");
-						connection.getOutputStream().writeInt(data.length);
-						connection.getOutputStream().write(data);
-						Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Sent data to some connection.");
-					}
-					catch (IOException e)
-					{
-						connection.setBroken();
+						if (!connection.isBroken())
+						{
+							try
+							{
+								//TODO: Run on individual threads!
+								Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Sending data to some connection...");
+								connection.getOutputStream().writeInt(data.length);
+								connection.getOutputStream().write(data);
+								Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Sent data to some connection.");
+							}
+							catch (IOException e)
+							{
+								connection.setBroken();
+							}
+						}
 					}
 				}
+			});
+
+			thread.start();
+
+			try
+			{
+				thread.join();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
 			}
 		}
 		Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Finished sending data of length: " + data.length);
 
 		cleanConnections();
+	}
+
+
+	public List<ConnectionReceiveInfo<Integer>> receiveInt()
+	{
+		final List<ConnectionReceiveInfo<Integer>> result = new LinkedList<>();
+		Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Receiving data...");
+		synchronized (mObject)
+		{
+			Thread thread = new Thread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					for (Connection connection : mConnections)
+					{
+						if (!connection.isBroken())
+						{
+							try
+							{
+								//TODO: Run on individual threads!
+								Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Receiving data from some " +
+										"connection...");
+
+								int data = connection.getInputStream().readInt();
+								ConnectionReceiveInfo<Integer> connectionReceiveInfo = new ConnectionReceiveInfo<>
+										(connection,
+										data);
+								result.add(connectionReceiveInfo);
+
+								Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Received data to some connection.");
+							}
+							catch (IOException e)
+							{
+								connection.setBroken();
+							}
+						}
+					}
+				}
+			});
+
+			thread.start();
+
+			try
+			{
+				thread.join();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Finished receiving data.");
+
+		cleanConnections();
+
+		return result;
 	}
 
 	private void cleanConnections()

@@ -8,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -19,6 +20,7 @@ public class PhonePictureStream
 {
 	private static final int SOCKET_TIMEOUT               = 500;
 	public static final  int PHONE_PICTURE_SOCKET_TIMEOUT = 3000;
+	public static final  int DATA_THRESHOLD               = 50;
 
 	private Timer mBeaconTimer;
 	private Timer mServerTimer;
@@ -77,6 +79,25 @@ public class PhonePictureStream
 
 		mConnectionsManager.send(data);
 		Utils.log(Constants.Classes.PHONE_PICTURE_STREAM, "Sent.");
+	}
+
+	public String receive()
+	{
+		String result = null;
+		int bestData = 0;
+		List<ConnectionReceiveInfo<Integer>> connectionReceiveInfos = mConnectionsManager.receiveInt();
+
+		for (ConnectionReceiveInfo<Integer> connectionReceiveInfo : connectionReceiveInfos)
+		{
+			int data = connectionReceiveInfo.mData;
+			if (data > DATA_THRESHOLD && data > bestData)
+			{
+				bestData = data;
+				result = connectionReceiveInfo.mConnection.getSocket().getInetAddress().getHostAddress();
+			}
+		}
+
+		return result;
 	}
 
 	public void cancel()

@@ -19,6 +19,7 @@ import static bachelor.claudiu.interactiveinformationshare.QRManager.QR_REQUEST_
 public class InteractiveInformationShareActivity extends Activity implements ContentSentCallback, PictureTakenCallback
 {
 	public static final String LOGS = "interesting-logs-flag ";
+	public static final boolean USE_BACK_CAMERA = true;
 
 	private String mContent        = null;
 	private String mDesktopAddress = null;
@@ -162,6 +163,20 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 		mPictureImageView.setImageBitmap(picture);
 		mPhonePictureStream.send(picture);
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Picture taken sent.");
+		if (true)
+		{
+			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Receiving results...");
+			mDesktopAddress = mPhonePictureStream.receive();
+			if (mDesktopAddress == null)
+			{
+				Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "No valid desktop address received.");
+			}
+			else
+			{
+				Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Valid desktop address received.");
+				sendContentToDesktop();
+			}
+		}
 	}
 
 	public void startCameraTimer()

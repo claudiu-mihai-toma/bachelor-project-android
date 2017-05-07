@@ -112,7 +112,16 @@ public class CameraTimerTask extends TimerTask
 						/*int width = mPhoto.getWidth() / 4;
 						int height = mPhoto.getHeight() / 4;
 						mPhoto = Bitmap.createScaledBitmap(mPhoto, width, height, false);*/
-							picture = Utils.RotateBitmap(picture, -90);
+
+							if (InteractiveInformationShareActivity.USE_BACK_CAMERA)
+							{
+								picture = Utils.RotateBitmap(picture, 90);
+							}
+							else
+							{
+								picture = Utils.RotateBitmap(picture, -90);
+							}
+
 							Utils.log(Constants.Classes.CAMERA_TIMER_TASK, "new capture width = " + picture.getWidth
 									());
 

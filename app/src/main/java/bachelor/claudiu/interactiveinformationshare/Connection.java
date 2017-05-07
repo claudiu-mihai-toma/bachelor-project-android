@@ -1,5 +1,6 @@
 package bachelor.claudiu.interactiveinformationshare;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
@@ -13,6 +14,7 @@ public class Connection
 	private boolean          mIsBroken;
 	private Socket           mSocket;
 	private DataOutputStream mOutputStream;
+	private DataInputStream  mInputStream;
 
 	public Connection(Socket socket) throws IOException
 	{
@@ -20,6 +22,7 @@ public class Connection
 		mIsBroken = false;
 		mSocket = socket;
 		mOutputStream = new DataOutputStream(mSocket.getOutputStream());
+		mInputStream = new DataInputStream(mSocket.getInputStream());
 		Utils.log(Constants.Classes.CONNECTION, "Created.");
 	}
 
@@ -40,7 +43,15 @@ public class Connection
 		}
 		catch (IOException e)
 		{
-			Utils.log(Constants.Classes.CONNECTION, "!!! Failed to close socket !!!");
+			Utils.log(Constants.Classes.CONNECTION, "!!! Failed to close output stream !!!");
+		}
+		try
+		{
+			mInputStream.close();
+		}
+		catch (IOException e)
+		{
+			Utils.log(Constants.Classes.CONNECTION, "!!! Failed to close input stream !!!");
 		}
 		Utils.log(Constants.Classes.CONNECTION, "Cleared.");
 	}
@@ -48,6 +59,16 @@ public class Connection
 	public DataOutputStream getOutputStream()
 	{
 		return mOutputStream;
+	}
+
+	public DataInputStream getInputStream()
+	{
+		return mInputStream;
+	}
+
+	public Socket getSocket()
+	{
+		return mSocket;
 	}
 
 	public void setBroken()
