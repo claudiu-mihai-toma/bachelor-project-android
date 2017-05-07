@@ -14,19 +14,22 @@ import java.util.Timer;
 
 public class QRManager
 {
-	private static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
-	public static final int QR_REQUEST_CODE = 0;
+	private static final String ACTION_SCAN     = "com.google.zxing.client.android.SCAN";
+	public static final  int    QR_REQUEST_CODE = 0;
 
 	private Activity mActivity;
-	private Timer mTimer;
+	private Timer    mTimer;
 
 	public QRManager(Activity activity)
 	{
+		Utils.log(Constants.Classes.QRMANAGER, "Constructing...");
 		mActivity = activity;
+		Utils.log(Constants.Classes.QRMANAGER, "Constructed.");
 	}
 
 	public void startQRActivity() throws SocketException, UnknownHostException
 	{
+		Utils.log(Constants.Classes.QRMANAGER, "Starting QR activity...");
 		mTimer = new Timer();
 		mTimer.schedule(new BroadcastBeaconTimerTask(Constants.Ports.QR_BEACON_PORT), 0,
 				BroadcastBeaconTimerTask.BEACON_PERIOD);
@@ -36,10 +39,12 @@ public class QRManager
 
 		if (!Utils.isCallable(mActivity, intent))
 		{
+			Utils.log(Constants.Classes.QRMANAGER, "!!! No QR activity found !!!");
 			throw new ActivityNotFoundException("QR scanner app not found!");
 		}
 
 		mActivity.startActivityForResult(intent, QR_REQUEST_CODE);
+		Utils.log(Constants.Classes.QRMANAGER, "QR activity started.");
 	}
 
 	public void clean()

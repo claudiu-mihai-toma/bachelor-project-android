@@ -20,6 +20,7 @@ import static bachelor.claudiu.interactiveinformationshare.InteractiveInformatio
 
 public class Utils
 {
+
 	public static void stopTimer(Timer timer)
 	{
 		if (timer != null)
@@ -55,15 +56,15 @@ public class Utils
 		Camera c = null;
 		try
 		{
-			Log.d(LOGS, "Getting camera instance.");
+			Utils.log(Constants.Classes.UTILS, "Getting camera instance.");
 			// attempt to get a Camera instance
 			c = Camera.open(cameraIndex);
-			Log.d(LOGS, "GOT camera instance.");
+			Utils.log(Constants.Classes.UTILS, "GOT camera instance.");
 		}
 		catch (Exception e)
 		{
 			// Camera is not available (in use or does not exist)
-			Log.d(LOGS, e.toString());
+			Utils.log(Constants.Classes.UTILS, e.toString());
 		}
 		return c; // returns null if camera is unavailable
 	}
@@ -73,5 +74,11 @@ public class Utils
 		List<ResolveInfo> list = activity.getPackageManager().queryIntentActivities(intent,
 				PackageManager.MATCH_DEFAULT_ONLY);
 		return list.size() > 0;
+	}
+
+	public static void log(String domain, String message)
+	{
+		String logMessage = "[" + domain + "] -> " + message + "\n";
+		Log.d(LOGS, logMessage);
 	}
 }

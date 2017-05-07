@@ -17,14 +17,18 @@ public class ConnectionsManager
 
 	public void addConnection(Connection connection)
 	{
+
+		Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Adding connection...");
 		synchronized (mObject)
 		{
 			mConnections.add(connection);
 		}
+		Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Connection added.");
 	}
 
 	public void send(byte[] data)
 	{
+		Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Sending data of length: " + data.length);
 		synchronized (mObject)
 		{
 			for (Connection connection : mConnections)
@@ -34,7 +38,10 @@ public class ConnectionsManager
 					try
 					{
 						//TODO: Run on individual threads!
+						Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Sending data to some connection...");
+						connection.getOutputStream().writeInt(data.length);
 						connection.getOutputStream().write(data);
+						Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Sent data to some connection.");
 					}
 					catch (IOException e)
 					{
@@ -43,12 +50,14 @@ public class ConnectionsManager
 				}
 			}
 		}
+		Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Finished sending data of length: " + data.length);
 
 		cleanConnections();
 	}
 
 	private void cleanConnections()
 	{
+		Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Cleaning connections...");
 		synchronized (mObject)
 		{
 			for (Iterator<Connection> iterator = mConnections.iterator(); iterator.hasNext(); )
@@ -59,13 +68,16 @@ public class ConnectionsManager
 				{
 					connection.clear();
 					mConnections.remove(connection);
+					Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Removed some connection.");
 				}
 			}
 		}
+		Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Finished cleaning connections.");
 	}
 
 	public void closeConnections()
 	{
+		Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Closing all connections...");
 		synchronized (mObject)
 		{
 			for (Connection connection : mConnections)
@@ -75,5 +87,6 @@ public class ConnectionsManager
 		}
 
 		cleanConnections();
+		Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "All connections closed.");
 	}
 }

@@ -1,13 +1,10 @@
 package bachelor.claudiu.interactiveinformationshare;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-
-import static bachelor.claudiu.interactiveinformationshare.InteractiveInformationShareActivity.LOGS;
 
 /**
  * Created by claudiu on 04.05.2017.
@@ -15,14 +12,16 @@ import static bachelor.claudiu.interactiveinformationshare.InteractiveInformatio
 class SendContentAsyncTask extends AsyncTask<Void, Void, Void>
 {
 	private ContentSentCallback mContentSentCallback;
-	private String mDesktopAddress;
-	private String mContent;
+	private String              mDesktopAddress;
+	private String              mContent;
 
 	public SendContentAsyncTask(ContentSentCallback contentSentCallback, String desktopAddress, String content)
 	{
+		Utils.log(Constants.Classes.SEND_CONTENT_ASYNC_TASK, "Constructing...");
 		mContentSentCallback = contentSentCallback;
 		mDesktopAddress = desktopAddress;
 		mContent = content;
+		Utils.log(Constants.Classes.SEND_CONTENT_ASYNC_TASK, "Constructed.");
 	}
 
 	@Override
@@ -30,12 +29,12 @@ class SendContentAsyncTask extends AsyncTask<Void, Void, Void>
 	{
 		try
 		{
-			Log.d(LOGS, "Sending data " + mContent + " to " +
+			Utils.log(Constants.Classes.SEND_CONTENT_ASYNC_TASK, "Sending data " + mContent + " to " +
 					mDesktopAddress);
 
-			Log.d(LOGS, "Creating socket...");
+			Utils.log(Constants.Classes.SEND_CONTENT_ASYNC_TASK, "Creating socket...");
 			Socket socket = new Socket(mDesktopAddress, Constants.Ports.CONTENT_RECEIVER_PORT);
-			Log.d(LOGS, "Socket created!");
+			Utils.log(Constants.Classes.SEND_CONTENT_ASYNC_TASK, "Socket created!");
 
 			DataOutputStream os = new DataOutputStream(socket.getOutputStream());
 
@@ -44,10 +43,11 @@ class SendContentAsyncTask extends AsyncTask<Void, Void, Void>
 			os.close();
 			socket.close();
 
+			Utils.log(Constants.Classes.SEND_CONTENT_ASYNC_TASK, "Send succeeded!");
 		}
 		catch (IOException e)
 		{
-			Log.d(LOGS, "Sending failed!");
+			Utils.log(Constants.Classes.SEND_CONTENT_ASYNC_TASK, "Sending failed!");
 		}
 
 		return null;
@@ -56,6 +56,8 @@ class SendContentAsyncTask extends AsyncTask<Void, Void, Void>
 	@Override
 	protected void onPostExecute(Void aVoid)
 	{
+		Utils.log(Constants.Classes.SEND_CONTENT_ASYNC_TASK, "Calling content sent callback...");
 		mContentSentCallback.contentSentCallback();
+		Utils.log(Constants.Classes.SEND_CONTENT_ASYNC_TASK, "Called content sent callback.");
 	}
 }

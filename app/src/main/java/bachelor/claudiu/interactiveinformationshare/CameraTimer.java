@@ -3,13 +3,10 @@ package bachelor.claudiu.interactiveinformationshare;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
-import android.util.Log;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
-
-import static bachelor.claudiu.interactiveinformationshare.InteractiveInformationShareActivity.LOGS;
 
 /**
  * Created by claudiu on 04.05.2017.
@@ -17,14 +14,16 @@ import static bachelor.claudiu.interactiveinformationshare.InteractiveInformatio
 
 public class CameraTimer
 {
-	private static final int CAMERA_PERIOD = 500;
+	private static final int CAMERA_PERIOD = 1;
 
-	private Timer mTimer;
-	private Camera mCamera;
+	private Timer                mTimer;
+	private Camera               mCamera;
 	private PictureTakenCallback mPictureTakenCallback;
 
 	public CameraTimer(PictureTakenCallback pictureTakenCallback)
 	{
+		Utils.log(Constants.Classes.CAMERA_TIMER, "Constructing...");
+
 		mPictureTakenCallback = pictureTakenCallback;
 		mCamera = Utils.getFrontCameraInstance();
 		if (mCamera == null)
@@ -33,22 +32,29 @@ public class CameraTimer
 		}
 
 		setCameraParameters();
+
+		Utils.log(Constants.Classes.CAMERA_TIMER, "Constructed.");
 	}
 
 	public void schedule()
 	{
+		Utils.log(Constants.Classes.CAMERA_TIMER, "Scheduling...");
 		mTimer = new Timer();
 		mTimer.schedule(new CameraTimerTask(mPictureTakenCallback, mCamera), 0, CAMERA_PERIOD);
+		Utils.log(Constants.Classes.CAMERA_TIMER, "Scheduled.");
 	}
 
 	private void setCameraParameters()
 	{
+		Utils.log(Constants.Classes.CAMERA_TIMER, "Setting parameters...");
 		try
 		{
+			// TODO: Try setting a preview texture before every picture taken.
 			mCamera.setPreviewTexture(new SurfaceTexture(10));
 		}
 		catch (IOException e)
 		{
+			Utils.log(Constants.Classes.CAMERA_TIMER, "!!! Failed to set preview texture !!!");
 		}
 		//mCamera.startPreview();
 		Camera.Parameters params = mCamera.getParameters();
@@ -58,15 +64,53 @@ public class CameraTimer
 		List<Camera.Size> sizes = params.getSupportedPictureSizes();
 		Camera.Size smallSize = sizes.get(sizes.size() - 1);
 		params.setPictureSize(smallSize.width, smallSize.height);
+
+		{
+			params.setPreviewSize(smallSize.width, smallSize.height);
+
+			//set color efects to none
+			params.setColorEffect(Camera.Parameters.EFFECT_NONE);
+
+			//set antibanding to none
+			if (params.getAntibanding() != null)
+			{
+				params.setAntibanding(Camera.Parameters.ANTIBANDING_OFF);
+			}
+
+			// set white ballance
+			if (params.getWhiteBalance() != null)
+			{
+				params.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_CLOUDY_DAYLIGHT);
+			}
+
+			//set flash
+			if (params.getFlashMode() != null)
+			{
+				params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+			}
+
+			//set zoom
+			if (params.isZoomSupported())
+			{
+				params.setZoom(0);
+			}
+
+			//set focus mode
+			params.setFocusMode(Camera.Parameters.FOCUS_MODE_INFINITY);
+		}
+
 		mCamera.setParameters(params);
+		Utils.log(Constants.Classes.CAMERA_TIMER, "Parameters set.");
 	}
 
 	public void cancel()
 	{
+		Utils.log(Constants.Classes.CAMERA_TIMER, "Cancelling...");
 		Utils.stopTimer(mTimer);
-		Log.d(LOGS, "Releasing camera...");
+		Utils.log(Constants.Classes.CAMERA_TIMER, "Releasing camera...");
 		mCamera.release();
-		Log.d(LOGS, "Camera released.");
+		Utils.log(Constants.Classes.CAMERA_TIMER, "Camera released.");
 		mCamera = null;
+		Utils.log(Constants.Classes.CAMERA_TIMER, "Cancelled.");
 	}
 }

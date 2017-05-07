@@ -5,7 +5,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -21,18 +20,19 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 {
 	public static final String LOGS = "interesting-logs-flag ";
 
-	private String mContent = null;
+	private String mContent        = null;
 	private String mDesktopAddress = null;
 
 	private ImageView mPictureImageView = null;
 
-	private QRManager mQRManager = null;
-	private CameraTimer mCameraTimer = null;
+	private QRManager          mQRManager          = null;
+	private CameraTimer        mCameraTimer        = null;
 	private PhonePictureStream mPhonePictureStream = null;
 
 
 	private void finishWithToast(String toastMessage)
 	{
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Finishing with message: " + toastMessage);
 		Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
 		finish();
 	}
@@ -42,7 +42,7 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 	{
 		super.onCreate(savedInstanceState);
 
-		Log.d(LOGS, "Welcome to create!");
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Welcome to create!");
 
 		Intent intent = getIntent();
 		if (intent == null)
@@ -51,7 +51,7 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 			return;
 		}
 
-		Log.d(LOGS, "Intent received [" + intent.getExtras() + "]");
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Intent received [" + intent.getExtras() + "]");
 		String textShared = intent.getStringExtra(Intent.EXTRA_TEXT);
 		if (textShared == null)
 		{
@@ -61,7 +61,7 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 
 		setContentView(R.layout.activity_interactive_information_share);
 
-		Log.d(LOGS, "Shared text [" + textShared + "]");
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Shared text [" + textShared + "]");
 		mContent = textShared;
 
 		mQRManager = new QRManager(this);
@@ -98,24 +98,27 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 			return;
 		}
 
-		Log.d(LOGS, "Finished starting app.");
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Finished starting app.");
 	}
 
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "onResume.");
 	}
 
 	@Override
 	protected void onPause()
 	{
 		super.onPause();
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "onPause.");
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "onActivityResult.");
 		switch (requestCode)
 		{
 			case QR_REQUEST_CODE:
@@ -123,6 +126,7 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 				if (resultCode == RESULT_OK)
 				{
 					mDesktopAddress = data.getStringExtra("SCAN_RESULT");
+					Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "QR address is: " + mDesktopAddress);
 					sendContentToDesktop();
 				}
 				else
@@ -136,46 +140,55 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 	@Override
 	protected void onDestroy()
 	{
-		Log.d(LOGS, "Destroying...");
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Destroying...");
 		stopCameraTimer();
 		mPhonePictureStream.cancel();
-		Log.d(LOGS, "Destroyed!");
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Destroyed!");
 		super.onDestroy();
-		Log.d(LOGS, "Super Destroyed!");
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Super Destroyed!");
 	}
 
 	@Override
 	public void contentSentCallback()
 	{
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Content successfully sent.");
 		//finish();
 	}
 
 	@Override
 	public void pictureTakenCallback(Bitmap picture)
 	{
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Picture taken callback.");
 		mPictureImageView.setImageBitmap(picture);
 		mPhonePictureStream.send(picture);
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Picture taken sent.");
 	}
 
 	public void startCameraTimer()
 	{
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Starting/Scheduling camera timer...");
 		stopCameraTimer();
 		mCameraTimer = new CameraTimer(this);
 		mCameraTimer.schedule();
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Camera timer started/scheduled.");
 	}
 
 	private void stopCameraTimer()
 	{
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Stopping camera timer...");
 		if (mCameraTimer != null)
 		{
 			mCameraTimer.cancel();
 			mCameraTimer = null;
 		}
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Camera timer stopped.");
 	}
 
 	private void sendContentToDesktop()
 	{
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Sending " + mContent + " to " + mDesktopAddress);
 		SendContentAsyncTask sendContentAsyncTask = new SendContentAsyncTask(this, mDesktopAddress, mContent);
 		sendContentAsyncTask.execute();
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Send content executed.");
 	}
 }

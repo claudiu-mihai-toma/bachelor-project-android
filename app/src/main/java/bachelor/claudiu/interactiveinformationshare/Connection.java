@@ -10,25 +10,29 @@ import java.net.Socket;
 
 public class Connection
 {
-	private boolean mIsBroken;
-	private Socket mSocket;
+	private boolean          mIsBroken;
+	private Socket           mSocket;
 	private DataOutputStream mOutputStream;
 
 	public Connection(Socket socket) throws IOException
 	{
+		Utils.log(Constants.Classes.CONNECTION, "Creating...");
 		mIsBroken = false;
 		mSocket = socket;
 		mOutputStream = new DataOutputStream(mSocket.getOutputStream());
+		Utils.log(Constants.Classes.CONNECTION, "Created.");
 	}
 
 	public void clear()
 	{
+		Utils.log(Constants.Classes.CONNECTION, "Clearing...");
 		try
 		{
 			mSocket.close();
 		}
 		catch (IOException e)
 		{
+			Utils.log(Constants.Classes.CONNECTION, "!!! Failed to close socket !!!");
 		}
 		try
 		{
@@ -36,7 +40,9 @@ public class Connection
 		}
 		catch (IOException e)
 		{
+			Utils.log(Constants.Classes.CONNECTION, "!!! Failed to close socket !!!");
 		}
+		Utils.log(Constants.Classes.CONNECTION, "Cleared.");
 	}
 
 	public DataOutputStream getOutputStream()
