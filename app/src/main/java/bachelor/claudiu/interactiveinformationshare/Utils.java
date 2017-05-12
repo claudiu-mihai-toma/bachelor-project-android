@@ -9,6 +9,13 @@ import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.util.Log;
 
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.LuminanceSource;
+import com.google.zxing.MultiFormatReader;
+import com.google.zxing.RGBLuminanceSource;
+import com.google.zxing.Result;
+import com.google.zxing.common.HybridBinarizer;
+
 import java.util.List;
 import java.util.Timer;
 
@@ -80,5 +87,32 @@ public class Utils
 	{
 		String logMessage = "[" + domain + "] -> " + message + "\n";
 		Log.d(LOGS, logMessage);
+	}
+
+	public static String scanQRImage(Bitmap bMap)
+	{
+		log(Constants.Classes.UTILS, "Scanning picture for QR...");
+		String contents = null;
+
+		int[] intArray = new int[bMap.getWidth() * bMap.getHeight()];
+		//copy pixel data from the Bitmap into the 'intArray' array
+		bMap.getPixels(intArray, 0, bMap.getWidth(), 0, 0, bMap.getWidth(), bMap.getHeight());
+
+		LuminanceSource source = new RGBLuminanceSource(bMap.getWidth(), bMap.getHeight(), intArray);
+		BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+
+		MultiFormatReader reader = new MultiFormatReader();
+		try
+		{
+			Result result = reader.decode(bitmap);
+			contents = result.getText();
+			log(Constants.Classes.UTILS, "Scan finished.");
+		}
+		catch (Exception e)
+		{
+			log(Constants.Classes.UTILS, "Error decoding barcode.");
+			log(Constants.Classes.UTILS, e.toString());
+		}
+		return contents;
 	}
 }

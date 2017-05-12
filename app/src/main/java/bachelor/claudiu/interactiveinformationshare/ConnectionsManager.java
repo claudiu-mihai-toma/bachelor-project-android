@@ -22,6 +22,7 @@ public class ConnectionsManager
 		synchronized (mObject)
 		{
 			mConnections.add(connection);
+			Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "number of connections: "+mConnections.size());
 		}
 		Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Connection added.");
 	}
@@ -36,28 +37,43 @@ public class ConnectionsManager
 				@Override
 				public void run()
 				{
-					for (Connection connection : mConnections)
+					synchronized (mObject)
 					{
-						if (!connection.isBroken())
+						for (Connection connection : mConnections)
 						{
-							try
+							if (!connection.isBroken())
 							{
-								//TODO: Run on individual threads!
-								Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Sending data to some connection...");
-								connection.getOutputStream().writeInt(data.length);
-								connection.getOutputStream().write(data);
-								Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Sent data to some connection.");
-							}
-							catch (IOException e)
-							{
-								connection.setBroken();
+								try
+								{
+									//TODO: Run on individual threads!
+									Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Sending data to some connection...");
+
+									connection.getOutputStream().writeInt(data.length);
+									connection.getOutputStream().write(data);
+									Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Sent data to some connection.");
+								}
+								catch (IOException e)
+								{
+									connection.setBroken();
+								}
 							}
 						}
+
+						mObject.notify();
 					}
 				}
 			});
 
 			thread.start();
+
+			try
+			{
+				mObject.wait();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
 
 			try
 			{
@@ -85,34 +101,49 @@ public class ConnectionsManager
 				@Override
 				public void run()
 				{
-					for (Connection connection : mConnections)
+					synchronized (mObject)
 					{
-						if (!connection.isBroken())
+						for (Connection connection : mConnections)
 						{
-							try
+							if (!connection.isBroken())
 							{
-								//TODO: Run on individual threads!
-								Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Receiving data from some " +
-										"connection...");
+								try
+								{
+									//TODO: Run on individual threads!
+									Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Receiving data from some " +
+											"connection...");
 
-								int data = connection.getInputStream().readInt();
-								ConnectionReceiveInfo<Integer> connectionReceiveInfo = new ConnectionReceiveInfo<>
-										(connection,
-										data);
-								result.add(connectionReceiveInfo);
+									int data = connection.getInputStream().readInt();
+									ConnectionReceiveInfo<Integer> connectionReceiveInfo = new ConnectionReceiveInfo<>
+											(connection,
+													data);
+									result.add(connectionReceiveInfo);
 
-								Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Received data to some connection.");
-							}
-							catch (IOException e)
-							{
-								connection.setBroken();
+									Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Received data from some " +
+											"connection.");
+								}
+								catch (IOException e)
+								{
+									connection.setBroken();
+								}
 							}
 						}
+
+						mObject.notify();
 					}
 				}
 			});
 
 			thread.start();
+
+			try
+			{
+				mObject.wait();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
 
 			try
 			{

@@ -6,19 +6,6 @@
     tools:context="bachelor.claudiu.interactiveinformationshare.InteractiveInformationShareActivity"
     android:orientation="vertical">
 
-    <Button
-        android:id="@+id/qr_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="QR" />
-
-    <ImageView
-        android:id="@+id/picture_imageview"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_gravity="center"/>
-
     <SurfaceView
         android:id="@+id/camera_surfaceview"
         android:layout_width="wrap_content"

@@ -26,8 +26,6 @@ public class BitmapCameraPreviewCallback implements Camera.PreviewCallback
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera)
 	{
-		Utils.log(Constants.Classes.PREVIEW, "Preview callback with size " + data.length);
-
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		YuvImage yuvImage = new YuvImage(data, ImageFormat.NV21, mPreviewSize.width, mPreviewSize.height,
 				null);

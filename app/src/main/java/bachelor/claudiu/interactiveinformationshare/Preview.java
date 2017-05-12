@@ -71,7 +71,7 @@ public class Preview implements SurfaceHolder.Callback
 	private void setCameraParameters()
 	{
 		List<Camera.Size> localSizes = mCamera.getParameters().getSupportedPreviewSizes();
-		mPreviewSize = localSizes.get(localSizes.size() / 2);
+		mPreviewSize = localSizes.get(localSizes.size()-1);
 
 		Camera.Parameters parameters = mCamera.getParameters();
 		Utils.log(Constants.Classes.PREVIEW, "Get preview size " + parameters.getPreviewSize().width + "x" +
