@@ -23,6 +23,7 @@ public class Constants
 		public static final String CONNECTIONS_MANAGER           = "ConnectionsManager";
 		public static final String INTERACTIVE_INFORMATION_SHARE = "InteractiveInformationShareActivity";
 		public static final String PHONE_PICTURE_STREAM          = "PhonePictureStream";
+		public static final String PREVIEW                       = "Preview";
 		public static final String QRMANAGER                     = "QRManager";
 		public static final String SEND_CONTENT_ASYNC_TASK       = "SendContentAsyncTask";
 		public static final String UTILS                         = "Utils";

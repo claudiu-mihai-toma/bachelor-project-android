@@ -1,8 +1,10 @@
 package bachelor.claudiu.interactiveinformationshare;
 
+import android.content.Context;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.view.SurfaceView;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,16 +16,21 @@ import java.util.Timer;
 
 public class CameraTimer
 {
-	private static final int     CAMERA_PERIOD   = 1;
+	private static final int CAMERA_PERIOD = 1;
 
 	private Timer                mTimer;
 	private Camera               mCamera;
 	private PictureTakenCallback mPictureTakenCallback;
+	private Context              mContext;
+	private SurfaceView          mSurfaceView;
+	private Preview              mPreview;
 
-	public CameraTimer(PictureTakenCallback pictureTakenCallback)
+	public CameraTimer(Context context, SurfaceView surfaceView, PictureTakenCallback pictureTakenCallback)
 	{
 		Utils.log(Constants.Classes.CAMERA_TIMER, "Constructing...");
 
+		mContext = context;
+		mSurfaceView = surfaceView;
 		mPictureTakenCallback = pictureTakenCallback;
 
 		if (InteractiveInformationShareActivity.USE_BACK_CAMERA)
@@ -40,16 +47,19 @@ public class CameraTimer
 			throw new RuntimeException("Camera is not available (in use or does not exist)!");
 		}
 
-		setCameraParameters();
+		mPreview = new Preview(mSurfaceView);
+
+		//setCameraParameters();
 
 		Utils.log(Constants.Classes.CAMERA_TIMER, "Constructed.");
 	}
 
 	public void schedule()
 	{
+		mPreview.setCamera(mCamera);
 		Utils.log(Constants.Classes.CAMERA_TIMER, "Scheduling...");
 		mTimer = new Timer();
-		mTimer.schedule(new CameraTimerTask(mPictureTakenCallback, mCamera), 0, CAMERA_PERIOD);
+		//mTimer.schedule(new CameraTimerTask(mPictureTakenCallback, mCamera), 0, CAMERA_PERIOD);
 		Utils.log(Constants.Classes.CAMERA_TIMER, "Scheduled.");
 	}
 

@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -18,7 +19,7 @@ import static bachelor.claudiu.interactiveinformationshare.QRManager.QR_REQUEST_
 
 public class InteractiveInformationShareActivity extends Activity implements ContentSentCallback, PictureTakenCallback
 {
-	public static final String LOGS = "interesting-logs-flag ";
+	public static final String  LOGS            = "interesting-logs-flag ";
 	public static final boolean USE_BACK_CAMERA = true;
 
 	private String mContent        = null;
@@ -29,6 +30,8 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 	private QRManager          mQRManager          = null;
 	private CameraTimer        mCameraTimer        = null;
 	private PhonePictureStream mPhonePictureStream = null;
+
+	private SurfaceView mSurfaceView = null;
 
 
 	private void finishWithToast(String toastMessage)
@@ -42,28 +45,31 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_interactive_information_share);
 
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Welcome to create!");
 
 		Intent intent = getIntent();
 		if (intent == null)
 		{
-			finishWithToast("Something went wrong!\nnull intent");
-			return;
+			mContent = "AWESOME TEST STRING!";
+			/*finishWithToast("Something went wrong!\nnull intent");
+			return;*/
 		}
-
-		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Intent received [" + intent.getExtras() + "]");
-		String textShared = intent.getStringExtra(Intent.EXTRA_TEXT);
-		if (textShared == null)
+		else
 		{
-			finishWithToast("Something went wrong!\nnull shared text");
-			return;
+			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Intent received [" + intent.getExtras() + "]");
+			mContent = intent.getStringExtra(Intent.EXTRA_TEXT);
 		}
 
-		setContentView(R.layout.activity_interactive_information_share);
+		if (mContent == null)
+		{
+			mContent = "AWESOME TEST STRING!";
+			/*finishWithToast("Something went wrong!\nnull shared text");
+			return;*/
+		}
 
-		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Shared text [" + textShared + "]");
-		mContent = textShared;
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Shared text [" + mContent + "]");
 
 		mQRManager = new QRManager(this);
 
@@ -84,9 +90,10 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 			}
 		});
 
-		startCameraTimer();
-
 		mPictureImageView = (ImageView) findViewById(R.id.picture_imageview);
+		mSurfaceView = (SurfaceView) findViewById(R.id.camera_surfaceview);
+
+		startCameraTimer();
 
 		try
 		{
@@ -183,7 +190,7 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 	{
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Starting/Scheduling camera timer...");
 		stopCameraTimer();
-		mCameraTimer = new CameraTimer(this);
+		mCameraTimer = new CameraTimer(this, mSurfaceView, this);
 		mCameraTimer.schedule();
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Camera timer started/scheduled.");
 	}
