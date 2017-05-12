@@ -65,38 +65,50 @@ public class Preview implements SurfaceHolder.Callback
 		if (mCamera != null)
 		{
 			Utils.log(Constants.Classes.PREVIEW, "Non null camera...");
-			List<Camera.Size> localSizes = mCamera.getParameters().getSupportedPreviewSizes();
-			mPreviewSize = localSizes.get(0);
 
-			try
-			{
-				mCamera.setPreviewDisplay(mHolder);
-			}
-			catch (IOException e)
-			{
-				Utils.log(Constants.Classes.PREVIEW, "Something went wring when setting up holder");
-				Utils.log(Constants.Classes.PREVIEW, e.toString());
-				e.printStackTrace();
-			}
+			setCameraParameters();
 
-			mCamera.setPreviewCallback(mPreviewCallback);
+			startPreview();
 
-			Camera.Parameters parameters = mCamera.getParameters();
-			Utils.log(Constants.Classes.PREVIEW, "Get preview size " + parameters.getPreviewSize().width + "x" +
-					parameters.getPreviewSize().height);
-			Utils.log(Constants.Classes.PREVIEW, "Set preview size " + mPreviewSize.width + "x" + mPreviewSize.height);
-			parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-			parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-			mCamera.setParameters(parameters);
-			mCamera.setDisplayOrientation(90);
-
-			// Important: Call startPreview() to start updating the preview
-			// surface. Preview must be started before you can take a picture.
-			Utils.log(Constants.Classes.PREVIEW, "Starting preview...");
-			mCamera.startPreview();
-			Utils.log(Constants.Classes.PREVIEW, "Preview started.");
 			Utils.log(Constants.Classes.PREVIEW, "Finished camera set.");
 		}
+	}
+
+	private void setCameraParameters()
+	{
+		List<Camera.Size> localSizes = mCamera.getParameters().getSupportedPreviewSizes();
+		mPreviewSize = localSizes.get(localSizes.size() / 2);
+
+		Camera.Parameters parameters = mCamera.getParameters();
+		Utils.log(Constants.Classes.PREVIEW, "Get preview size " + parameters.getPreviewSize().width + "x" +
+				parameters.getPreviewSize().height);
+		Utils.log(Constants.Classes.PREVIEW, "Set preview size " + mPreviewSize.width + "x" + mPreviewSize.height);
+		parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+		parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+		mCamera.setParameters(parameters);
+		mCamera.setDisplayOrientation(90);
+	}
+
+	private void startPreview()
+	{
+		try
+		{
+			mCamera.setPreviewDisplay(mHolder);
+		}
+		catch (IOException e)
+		{
+			Utils.log(Constants.Classes.PREVIEW, "Something went wring when setting up holder");
+			Utils.log(Constants.Classes.PREVIEW, e.toString());
+			e.printStackTrace();
+		}
+
+		mCamera.setPreviewCallback(mPreviewCallback);
+
+		// Important: Call startPreview() to start updating the preview
+		// surface. Preview must be started before you can take a picture.
+		Utils.log(Constants.Classes.PREVIEW, "Starting preview...");
+		mCamera.startPreview();
+		Utils.log(Constants.Classes.PREVIEW, "Preview started.");
 	}
 
 	/**
@@ -129,22 +141,7 @@ public class Preview implements SurfaceHolder.Callback
 	{
 		Utils.log(Constants.Classes.PREVIEW, "surfaceChanged");
 
-		try
-		{
-			mCamera.setPreviewDisplay(mHolder);
-		}
-		catch (IOException e)
-		{
-			Utils.log(Constants.Classes.PREVIEW, "Something went wring when setting up holder");
-			Utils.log(Constants.Classes.PREVIEW, e.toString());
-			e.printStackTrace();
-		}
-
-		mCamera.setPreviewCallback(mPreviewCallback);
-
-		// Important: Call startPreview() to start updating the preview surface.
-		// Preview must be started before you can take a picture.
-		mCamera.startPreview();
+		startPreview();
 	}
 
 	@Override
@@ -157,6 +154,5 @@ public class Preview implements SurfaceHolder.Callback
 			// Call stopPreview() to stop updating the preview surface.
 			mCamera.stopPreview();
 		}
-
 	}
 }
