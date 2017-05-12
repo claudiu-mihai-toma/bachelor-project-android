@@ -167,7 +167,11 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 	public void pictureTakenCallback(Bitmap picture)
 	{
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Picture taken callback.");
-		mPictureImageView.setImageBitmap(picture);
+		//mPictureImageView.setImageBitmap(picture);
+		if (picture == null)
+		{
+			return;
+		}
 		mPhonePictureStream.send(picture);
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Picture taken sent.");
 		if (true)

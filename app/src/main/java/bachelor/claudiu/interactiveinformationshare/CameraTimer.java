@@ -59,7 +59,7 @@ public class CameraTimer
 		mPreview.setCamera(mCamera);
 		Utils.log(Constants.Classes.CAMERA_TIMER, "Scheduling...");
 		mTimer = new Timer();
-		//mTimer.schedule(new CameraTimerTask(mPictureTakenCallback, mCamera), 0, CAMERA_PERIOD);
+		mTimer.schedule(new CameraTimerTask(mPictureTakenCallback, mCamera, mPreview), 0, CAMERA_PERIOD);
 		Utils.log(Constants.Classes.CAMERA_TIMER, "Scheduled.");
 	}
 

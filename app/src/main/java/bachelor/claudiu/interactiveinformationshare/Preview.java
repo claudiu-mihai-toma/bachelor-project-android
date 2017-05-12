@@ -1,5 +1,6 @@
 package bachelor.claudiu.interactiveinformationshare;
 
+import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -18,7 +19,7 @@ public class Preview implements SurfaceHolder.Callback
 	SurfaceHolder          mHolder;
 	Camera                 mCamera;
 	Camera.Size            mPreviewSize;
-	Camera.PreviewCallback mPreviewCallback;
+	BitmapCameraPreviewCallback mPreviewCallback;
 
 	public Preview(SurfaceView surfaceView)
 	{
@@ -36,15 +37,6 @@ public class Preview implements SurfaceHolder.Callback
 		mHolder = mSurfaceView.getHolder();
 		mHolder.addCallback(this);
 		mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-
-		mPreviewCallback = new Camera.PreviewCallback()
-		{
-			@Override
-			public void onPreviewFrame(byte[] data, Camera camera)
-			{
-				Utils.log(Constants.Classes.PREVIEW, "Preview callback with size " + data.length);
-			}
-		};
 
 		Utils.log(Constants.Classes.PREVIEW, "Constructed.");
 	}
@@ -67,6 +59,8 @@ public class Preview implements SurfaceHolder.Callback
 			Utils.log(Constants.Classes.PREVIEW, "Non null camera...");
 
 			setCameraParameters();
+
+			mPreviewCallback = new BitmapCameraPreviewCallback(mPreviewSize);
 
 			startPreview();
 
@@ -154,5 +148,10 @@ public class Preview implements SurfaceHolder.Callback
 			// Call stopPreview() to stop updating the preview surface.
 			mCamera.stopPreview();
 		}
+	}
+
+	public Bitmap getPreview()
+	{
+		return mPreviewCallback.getPreview();
 	}
 }
