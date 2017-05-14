@@ -15,11 +15,11 @@ import java.util.List;
 public class Preview implements SurfaceHolder.Callback
 {
 
-	SurfaceView            mSurfaceView;
-	SurfaceHolder          mHolder;
-	Camera                 mCamera;
-	Camera.Size            mPreviewSize;
-	BitmapCameraPreviewCallback mPreviewCallback;
+	private SurfaceView                 mSurfaceView;
+	private SurfaceHolder               mHolder;
+	private Camera                      mCamera;
+	private Camera.Size                 mPreviewSize;
+	private BitmapCameraPreviewCallback mPreviewCallback;
 
 	public Preview(SurfaceView surfaceView)
 	{
@@ -71,7 +71,7 @@ public class Preview implements SurfaceHolder.Callback
 	private void setCameraParameters()
 	{
 		List<Camera.Size> localSizes = mCamera.getParameters().getSupportedPreviewSizes();
-		mPreviewSize = localSizes.get(localSizes.size()-1);
+		mPreviewSize = localSizes.get(localSizes.size() / 4);
 
 		Camera.Parameters parameters = mCamera.getParameters();
 		Utils.log(Constants.Classes.PREVIEW, "Get preview size " + parameters.getPreviewSize().width + "x" +
@@ -152,6 +152,39 @@ public class Preview implements SurfaceHolder.Callback
 
 	public Bitmap getPreview()
 	{
-		return mPreviewCallback.getPreview();
+		return cropToFitSurfaceView(mPreviewCallback.getPreview());
+	}
+
+	private Bitmap cropToFitSurfaceView(Bitmap bitmap)
+	{
+		if (bitmap == null)
+		{
+			return null;
+		}
+		int heightPreview = bitmap.getHeight();
+		int widthPreview = bitmap.getWidth();
+
+		int heightSurface = mSurfaceView.getHeight();
+		int widthSurface = mSurfaceView.getWidth();
+
+		int deltaX = (widthPreview * heightSurface - widthSurface * heightPreview) / (heightSurface);
+		int deltaY = (widthSurface * heightPreview - widthPreview * heightSurface) / (widthSurface);
+		int halfDeltaX = deltaX / 2;
+		int halfDeltaY = deltaY / 2;
+
+		if (deltaX > 0)
+		{
+			bitmap = Bitmap.createBitmap(bitmap, halfDeltaX, 0, widthPreview - deltaX, heightPreview);
+		}
+		else
+		{
+			//This check is not be redundant. Both deltas might be 0.
+			if (deltaY > 0)
+			{
+				bitmap = Bitmap.createBitmap(bitmap, 0, halfDeltaY, widthPreview, heightPreview - deltaY);
+			}
+		}
+
+		return bitmap;
 	}
 }
