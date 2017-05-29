@@ -13,9 +13,9 @@ class SendContentAsyncTask extends AsyncTask<Void, Void, Void>
 {
 	private ContentSentCallback mContentSentCallback;
 	private String              mDesktopAddress;
-	private String              mContent;
+	private Content              mContent;
 
-	public SendContentAsyncTask(ContentSentCallback contentSentCallback, String desktopAddress, String content)
+	public SendContentAsyncTask(ContentSentCallback contentSentCallback, String desktopAddress, Content content)
 	{
 		Utils.log(Constants.Classes.SEND_CONTENT_ASYNC_TASK, "Constructing...");
 		mContentSentCallback = contentSentCallback;
@@ -38,7 +38,14 @@ class SendContentAsyncTask extends AsyncTask<Void, Void, Void>
 
 			DataOutputStream os = new DataOutputStream(socket.getOutputStream());
 
-			os.writeUTF(mContent);
+			os.writeInt(mContent.getType().getId());
+			os.writeUTF(mContent.getTitle());
+			byte[] data = mContent.getData();
+			if (data != null)
+			{
+				os.writeInt(data.length);
+				os.write(data);
+			}
 
 			os.close();
 			socket.close();

@@ -26,4 +26,15 @@ public class Constants
 		public static final String SEND_CONTENT_ASYNC_TASK       = "SendContentAsyncTask";
 		public static final String UTILS                         = "Utils";
 	}
+
+	public class ContentTypeIDs
+	{
+		public static final int TEXT = 0;
+		public static final int IMAGE = 1;
+	}
+
+	public class Charsets
+	{
+		public static final String UTF_8 = "UTF-8";
+	}
 }

@@ -8,6 +8,9 @@ import android.os.Bundle;
 import android.view.SurfaceView;
 import android.widget.Toast;
 
+import com.google.common.io.Files;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -16,7 +19,7 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 	public static final String  LOGS            = "interesting-logs-flag ";
 	public static final boolean USE_BACK_CAMERA = true;
 
-	private String             mContent                = null;
+	private Content            mContent                = null;
 	private String             mDesktopAddress         = null;
 	private CameraTimer        mCameraTimer            = null;
 	private PhonePictureStream mPhonePictureStream     = null;
@@ -42,12 +45,13 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 
 		if (mContent == null)
 		{
-			mContent = "AWESOME TEST STRING!";
+			mContent = new Content(Content.ContentType.TEXT, "AWESOME TEST STRING!", null);
+
 			/*finishWithToast("Something went wrong!\nnull shared text");
 			return;*/
 		}
 
-		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Shared text [" + mContent + "]");
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Shared text [" + mContent.getTitle() + "]");
 
 		mProcessingPictureTaken = new AtomicBoolean(false);
 
@@ -113,17 +117,13 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 
 				if (mDesktopAddress != null)
 				{
-					Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Valid desktop address from QR scan" +
-							".");
+					Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Valid desktop address from QR scan.");
 					sendContentToDesktop();
 
 				}
 				else
 				{
-					Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "No valid desktop address from QR" +
-							" " +
-							"scan" +
-							".");
+					Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "No valid desktop address from QR scan.");
 
 					mPhonePictureStream.send(picture);
 					Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Picture taken sent.");
@@ -133,16 +133,11 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 						mDesktopAddress = mPhonePictureStream.receive();
 						if (mDesktopAddress == null)
 						{
-							Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "No valid desktop address" +
-									" " +
-									"received" +
-									".");
+							Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "No valid desktop address received.");
 						}
 						else
 						{
-							Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Valid desktop address " +
-									"received" +
-									".");
+							Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Valid desktop address received.");
 							sendContentToDesktop();
 						}
 					}
@@ -184,50 +179,80 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 	private void handleIntent()
 	{
 		Intent intent = getIntent();
-		/*String action = intent.getAction();
-		String type = intent.getType();
-
-		if (Intent.ACTION_SEND.equals(action) && type != null) {
-			if (type.equals("text/plain")) {
-				handleSendText(intent); // Handle text being sent
-			} else if (type.startsWith("image/")) {
-				handleSendImage(intent); // Handle single image being sent
-			}
-		}*/
 
 		if (intent == null)
 		{
-			mContent = "AWESOME TEST STRING!";
+			mContent = new Content(Content.ContentType.TEXT, "AWESOME TEST STRING!", null);
+
 			/*finishWithToast("Something went wrong!\nnull intent");
 			return;*/
 		}
 		else
 		{
 			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Intent received [" + intent.getExtras() + "]");
-			mContent = intent.getStringExtra(Intent.EXTRA_TEXT);
 
-			Bundle intentBundle = intent.getExtras();
-			if (intentBundle != null)
+			String action = intent.getAction();
+			String type = intent.getType();
+
+			if (Intent.ACTION_SEND.equals(action) && type != null)
 			{
-				for (String key : intentBundle.keySet())
+				if (type.equals("text/plain"))
 				{
-					Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Bundle content: {" + key + "}:{" +
-							intentBundle.get(key).toString() + "}");
+					handleSendText(intent); // Handle text being sent
+				}
+				else
+				{
+					if (type.startsWith("image/"))
+					{
+						handleSendImage(intent); // Handle single image being sent
+					}
 				}
 			}
-
-			Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-
-			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Intent URI: {" + uri + "}");
-
-			try
-			{
-				mContent = Utils.getStringFromFile(uri.getPath());
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
 		}
+	}
+
+	private void handleSendText(Intent intent)
+	{
+		String stringContent = intent.getStringExtra(Intent.EXTRA_TEXT);
+
+		mContent = new Content(Content.ContentType.TEXT, stringContent, null);
+	}
+
+	private void handleSendImage(Intent intent)
+	{
+		Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Intent URI: {" + uri + "}");
+
+		String path = uri.getPath();
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Image path: {" + path + "}");
+		String realPath = Utils.getRealPathFromURI(this, uri);
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Image real path: {" + realPath + "}");
+
+		File file = new File(realPath);
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Image name: {" + file.getName() + "}");
+
+		String fileName = Utils.getFileName(realPath);
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Image real name: {" + fileName + "}");
+
+		byte[] data = null;
+
+		try
+		{
+			data = Files.toByteArray(file);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "toByteArray exception: {" + e.toString() + "}");
+		}
+
+		if (data == null)
+		{
+			// TODO: Not good! We cannot read the image. Handle this!
+			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "DATA IS NULL!!!");
+			return;
+		}
+
+		mContent = new Content(Content.ContentType.IMAGE, fileName, data);
 	}
 }
