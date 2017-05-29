@@ -16,6 +16,11 @@ import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Timer;
 
@@ -114,5 +119,28 @@ public class Utils
 			log(Constants.Classes.UTILS, e.toString());
 		}
 		return contents;
+	}
+
+	public static String convertStreamToString(InputStream is) throws Exception
+	{
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+		StringBuilder sb = new StringBuilder();
+		String line = reader.readLine();
+		sb.append(line);
+		while ((line = reader.readLine()) != null)
+		{
+			sb.append("\n").append(line);
+		}
+		reader.close();
+		return sb.toString();
+	}
+
+	public static String getStringFromFile(String filePath) throws Exception
+	{
+		File fl = new File(filePath);
+		FileInputStream fin = new FileInputStream(fl);
+		String ret = convertStreamToString(fin);
+		fin.close();
+		return ret;
 	}
 }

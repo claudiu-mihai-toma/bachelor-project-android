@@ -3,6 +3,7 @@ package bachelor.claudiu.interactiveinformationshare;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.SurfaceView;
 import android.widget.Toast;
@@ -37,18 +38,7 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Welcome to create!");
 
-		Intent intent = getIntent();
-		if (intent == null)
-		{
-			mContent = "AWESOME TEST STRING!";
-			/*finishWithToast("Something went wrong!\nnull intent");
-			return;*/
-		}
-		else
-		{
-			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Intent received [" + intent.getExtras() + "]");
-			mContent = intent.getStringExtra(Intent.EXTRA_TEXT);
-		}
+		handleIntent();
 
 		if (mContent == null)
 		{
@@ -123,13 +113,15 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 
 				if (mDesktopAddress != null)
 				{
-					Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Valid desktop address from QR scan.");
+					Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Valid desktop address from QR scan" +
+							".");
 					sendContentToDesktop();
 
 				}
 				else
 				{
-					Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "No valid desktop address from QR " +
+					Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "No valid desktop address from QR" +
+							" " +
 							"scan" +
 							".");
 
@@ -141,7 +133,8 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 						mDesktopAddress = mPhonePictureStream.receive();
 						if (mDesktopAddress == null)
 						{
-							Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "No valid desktop address " +
+							Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "No valid desktop address" +
+									" " +
 									"received" +
 									".");
 						}
@@ -186,5 +179,55 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 		SendContentAsyncTask sendContentAsyncTask = new SendContentAsyncTask(this, mDesktopAddress, mContent);
 		sendContentAsyncTask.execute();
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Send content executed.");
+	}
+
+	private void handleIntent()
+	{
+		Intent intent = getIntent();
+		/*String action = intent.getAction();
+		String type = intent.getType();
+
+		if (Intent.ACTION_SEND.equals(action) && type != null) {
+			if (type.equals("text/plain")) {
+				handleSendText(intent); // Handle text being sent
+			} else if (type.startsWith("image/")) {
+				handleSendImage(intent); // Handle single image being sent
+			}
+		}*/
+
+		if (intent == null)
+		{
+			mContent = "AWESOME TEST STRING!";
+			/*finishWithToast("Something went wrong!\nnull intent");
+			return;*/
+		}
+		else
+		{
+			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Intent received [" + intent.getExtras() + "]");
+			mContent = intent.getStringExtra(Intent.EXTRA_TEXT);
+
+			Bundle intentBundle = intent.getExtras();
+			if (intentBundle != null)
+			{
+				for (String key : intentBundle.keySet())
+				{
+					Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Bundle content: {" + key + "}:{" +
+							intentBundle.get(key).toString() + "}");
+				}
+			}
+
+			Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+
+			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Intent URI: {" + uri + "}");
+
+			try
+			{
+				mContent = Utils.getStringFromFile(uri.getPath());
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 }
