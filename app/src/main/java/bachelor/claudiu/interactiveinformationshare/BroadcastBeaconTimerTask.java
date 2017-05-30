@@ -42,11 +42,7 @@ public class BroadcastBeaconTimerTask extends TimerTask
 		{
 			try
 			{
-				DatagramPacket sendPacket = new DatagramPacket(
-						BEACON_MESSAGE.getBytes(),
-						BEACON_MESSAGE.length(),
-						InetAddress.getByName(DEFAULT_BROADCAST_ADDRESS),
-						mPort);
+				DatagramPacket sendPacket = new DatagramPacket(BEACON_MESSAGE.getBytes(), BEACON_MESSAGE.length(), InetAddress.getByName(DEFAULT_BROADCAST_ADDRESS), mPort);
 				mDatagramSocket.send(sendPacket);
 			}
 			catch (Exception e)
@@ -75,11 +71,7 @@ public class BroadcastBeaconTimerTask extends TimerTask
 					// Send the broadcast package!
 					try
 					{
-						DatagramPacket sendPacket = new DatagramPacket(
-								BEACON_MESSAGE.getBytes(),
-								BEACON_MESSAGE.length(),
-								broadcast,
-								mPort);
+						DatagramPacket sendPacket = new DatagramPacket(BEACON_MESSAGE.getBytes(), BEACON_MESSAGE.length(), broadcast, mPort);
 						mDatagramSocket.send(sendPacket);
 
 						//Log.d(InteractiveInformationShareActivity.LOGS, "Sending broadcast to: " + broadcast);

@@ -24,17 +24,23 @@ public class Constants
 		public static final String PHONE_PICTURE_STREAM          = "PhonePictureStream";
 		public static final String PREVIEW                       = "Preview";
 		public static final String SEND_CONTENT_ASYNC_TASK       = "SendContentAsyncTask";
+		public static final String RECEIVE_CONTENT_ASYNC_TASK    = "ReceiveContentAsyncTask";
 		public static final String UTILS                         = "Utils";
 	}
 
 	public class ContentTypeIDs
 	{
-		public static final int TEXT = 0;
+		public static final int TEXT  = 0;
 		public static final int IMAGE = 1;
 	}
 
 	public class Charsets
 	{
 		public static final String UTF_8 = "UTF-8";
+	}
+
+	public class Misc
+	{
+		public static final String PICTURE_DESCRIPTION = "Picture received with Sherry.";
 	}
 }

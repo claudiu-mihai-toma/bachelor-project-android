@@ -178,7 +178,7 @@ public class Preview implements SurfaceHolder.Callback
 		}
 		else
 		{
-			//This check is not be redundant. Both deltas might be 0.
+			//This check is not redundant. Both deltas might be 0.
 			if (deltaY > 0)
 			{
 				bitmap = Bitmap.createBitmap(bitmap, 0, halfDeltaY, widthPreview, heightPreview - deltaY);

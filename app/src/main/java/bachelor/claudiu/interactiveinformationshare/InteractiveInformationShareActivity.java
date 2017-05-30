@@ -1,10 +1,15 @@
 package bachelor.claudiu.interactiveinformationshare;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.SurfaceView;
 import android.widget.Toast;
 
@@ -14,7 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class InteractiveInformationShareActivity extends Activity implements ContentSentCallback, PictureTakenCallback
+public class InteractiveInformationShareActivity extends Activity implements ContentSentCallback, PictureTakenCallback, ContentReceivedCallback
 {
 	public static final String  LOGS            = "interesting-logs-flag ";
 	public static final boolean USE_BACK_CAMERA = true;
@@ -25,12 +30,21 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 	private PhonePictureStream mPhonePictureStream     = null;
 	private SurfaceView        mSurfaceView            = null;
 	private AtomicBoolean      mProcessingPictureTaken = null;
+	private boolean            mSendContent            = true;
 
 	private void finishWithToast(String toastMessage)
 	{
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Finishing with message: " + toastMessage);
+		//clean();
 		Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
 		finish();
+	}
+
+	private void clean()
+	{
+		// TODO: Add complete cleanup here!
+		stopCameraTimer();
+		mPhonePictureStream.cancel();
 	}
 
 	@Override
@@ -43,21 +57,18 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 
 		handleIntent();
 
-		if (mContent == null)
+		if (mSendContent)
 		{
-			mContent = new Content(Content.ContentType.TEXT, "AWESOME TEST STRING!", null);
-
-			/*finishWithToast("Something went wrong!\nnull shared text");
-			return;*/
+			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "App will send content.");
 		}
-
-		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Shared text [" + mContent.getTitle() + "]");
+		else
+		{
+			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "App will receive content.");
+		}
 
 		mProcessingPictureTaken = new AtomicBoolean(false);
 
 		mSurfaceView = (SurfaceView) findViewById(R.id.camera_surfaceview);
-
-		startCameraTimer();
 
 		try
 		{
@@ -69,6 +80,8 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 			finishWithToast("Cannot start phone picture stream!");
 			return;
 		}
+
+		startCameraTimer();
 
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Finished starting app.");
 	}
@@ -91,8 +104,7 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 	protected void onDestroy()
 	{
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Destroying...");
-		stopCameraTimer();
-		mPhonePictureStream.cancel();
+		clean();
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Destroyed!");
 		super.onDestroy();
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Super Destroyed!");
@@ -102,7 +114,33 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 	public void contentSentCallback()
 	{
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Content successfully sent.");
-		//finish();
+		finishWithToast("Content successfully sent.");
+	}
+
+	@Override
+	public void contentReceivedCallback(Content content)
+	{
+		mContent = content;
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Content successfully received.");
+		String title = mContent.getTitle();
+		byte[] data = mContent.getData();
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Content title: [" + title + "]");
+
+		if (data != null)
+		{
+			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Content length: [" + data.length + "]");
+			Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+			String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, title, Constants.Misc.PICTURE_DESCRIPTION);
+			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Content stored to path: [" + Utils.getRealPathFromURI(this, Uri.parse(path)) + "]");
+		}
+		else
+		{
+			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Content length: [none]");
+			// TODO: Open a browser (if title is a link)?
+			copyTextToClipboard(title);
+			Toast.makeText(this, title, Toast.LENGTH_LONG).show();
+		}
+		finishWithToast("Content successfully received.");
 	}
 
 	@Override
@@ -118,33 +156,34 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 				if (mDesktopAddress != null)
 				{
 					Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Valid desktop address from QR scan.");
-					sendContentToDesktop();
-
+					transferContent();
 				}
 				else
 				{
 					Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "No valid desktop address from QR scan.");
 
+					Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Sending picture taken...");
 					mPhonePictureStream.send(picture);
 					Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Picture taken sent.");
-					if (true)
+
+					Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Receiving results...");
+					mDesktopAddress = mPhonePictureStream.receive();
+					if (mDesktopAddress == null)
 					{
-						Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Receiving results...");
-						mDesktopAddress = mPhonePictureStream.receive();
-						if (mDesktopAddress == null)
-						{
-							Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "No valid desktop address received.");
-						}
-						else
-						{
-							Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Valid desktop address received.");
-							sendContentToDesktop();
-						}
+						Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "No valid desktop address received.");
+						mProcessingPictureTaken.set(false);
+					}
+					else
+					{
+						Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Valid desktop address received.");
+						transferContent();
 					}
 				}
 			}
-
-			mProcessingPictureTaken.set(false);
+			else
+			{
+				mProcessingPictureTaken.set(false);
+			}
 		}
 	}
 
@@ -168,6 +207,18 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Camera timer stopped.");
 	}
 
+	private void transferContent()
+	{
+		if (mSendContent)
+		{
+			sendContentToDesktop();
+		}
+		else
+		{
+			receiveContentFromDesktop();
+		}
+	}
+
 	private void sendContentToDesktop()
 	{
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Sending " + mContent + " to " + mDesktopAddress);
@@ -176,13 +227,22 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Send content executed.");
 	}
 
+	private void receiveContentFromDesktop()
+	{
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Receiving content from " + mDesktopAddress);
+		ReceiveContentAsyncTask receiveContentAsyncTask = new ReceiveContentAsyncTask(this, mDesktopAddress);
+		receiveContentAsyncTask.execute();
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Receive content executed.");
+	}
+
 	private void handleIntent()
 	{
 		Intent intent = getIntent();
 
-		if (intent == null)
+		if (intent == null || intent.getExtras() == null)
 		{
-			mContent = new Content(Content.ContentType.TEXT, "AWESOME TEST STRING!", null);
+			mSendContent = false;
+			//mContent = new Content(Content.ContentType.TEXT, "AWESOME TEST STRING!", null);
 
 			/*finishWithToast("Something went wrong!\nnull intent");
 			return;*/
@@ -206,7 +266,15 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 					{
 						handleSendImage(intent); // Handle single image being sent
 					}
+					else
+					{
+						mSendContent = false;
+					}
 				}
+			}
+			else
+			{
+				mSendContent = false;
 			}
 		}
 	}
@@ -254,5 +322,12 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 		}
 
 		mContent = new Content(Content.ContentType.IMAGE, fileName, data);
+	}
+
+	private void copyTextToClipboard(String text)
+	{
+		ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+		ClipData clip = ClipData.newPlainText("received text", text);
+		clipboard.setPrimaryClip(clip);
 	}
 }

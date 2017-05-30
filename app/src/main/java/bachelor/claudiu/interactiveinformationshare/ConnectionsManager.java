@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ConnectionsManager
 {
-	private Object mObject = new Object();
+	private final Object mObject = new Object();
 
 	private List<Connection> mConnections = new LinkedList<>();
 
@@ -22,7 +22,7 @@ public class ConnectionsManager
 		synchronized (mObject)
 		{
 			mConnections.add(connection);
-			Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "number of connections: "+mConnections.size());
+			Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "number of connections: " + mConnections.size());
 		}
 		Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Connection added.");
 	}
@@ -47,7 +47,6 @@ public class ConnectionsManager
 								{
 									//TODO: Run on individual threads!
 									Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Sending data to some connection...");
-
 									connection.getOutputStream().writeInt(data.length);
 									connection.getOutputStream().write(data);
 									Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Sent data to some connection.");
@@ -110,17 +109,13 @@ public class ConnectionsManager
 								try
 								{
 									//TODO: Run on individual threads!
-									Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Receiving data from some " +
-											"connection...");
+									Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Receiving data from some " + "connection...");
 
 									int data = connection.getInputStream().readInt();
-									ConnectionReceiveInfo<Integer> connectionReceiveInfo = new ConnectionReceiveInfo<>
-											(connection,
-													data);
+									ConnectionReceiveInfo<Integer> connectionReceiveInfo = new ConnectionReceiveInfo<>(connection, data);
 									result.add(connectionReceiveInfo);
 
-									Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Received data from some " +
-											"connection.");
+									Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Received data from some " + "connection.");
 								}
 								catch (IOException e)
 								{
@@ -168,7 +163,9 @@ public class ConnectionsManager
 		{
 			for (Iterator<Connection> iterator = mConnections.iterator(); iterator.hasNext(); )
 			{
+				Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "before get next");
 				Connection connection = iterator.next();
+				Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "after get next");
 
 				if (connection.isBroken())
 				{

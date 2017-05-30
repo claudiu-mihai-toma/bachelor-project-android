@@ -23,6 +23,7 @@ public class PhonePictureStream
 	public static final  int DATA_THRESHOLD               = 50;
 
 	private Timer mBeaconTimer;
+	// TODO: Make this a thread that cycles until interrupted.
 	private Timer mServerTimer;
 	private ConnectionsManager mConnectionsManager = new ConnectionsManager();
 	private ServerSocket mServerSocket;
@@ -65,8 +66,7 @@ public class PhonePictureStream
 		mServerTimer.schedule(new SocketAccepter(), 0, SocketAccepter.SOCKET_ACCEPTER_PERIOD);
 
 		mBeaconTimer = new Timer();
-		mBeaconTimer.schedule(new BroadcastBeaconTimerTask(Constants.Ports.PICTURE_STREAM_BEACON_PORT), 0,
-				BroadcastBeaconTimerTask.BEACON_PERIOD);
+		mBeaconTimer.schedule(new BroadcastBeaconTimerTask(Constants.Ports.PICTURE_STREAM_BEACON_PORT), 0, BroadcastBeaconTimerTask.BEACON_PERIOD);
 		Utils.log(Constants.Classes.PHONE_PICTURE_STREAM, "Opened");
 	}
 
