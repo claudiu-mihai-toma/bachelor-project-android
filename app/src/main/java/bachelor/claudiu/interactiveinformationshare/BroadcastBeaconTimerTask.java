@@ -8,13 +8,12 @@ import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
-import java.util.TimerTask;
 
 /**
  * Created by claudiu on 23.04.2017.
  */
 
-public class BroadcastBeaconTimerTask extends TimerTask
+public class BroadcastBeaconTimerTask implements Runnable
 {
 
 	private static final String BEACON_MESSAGE            = "interactive_information_share";

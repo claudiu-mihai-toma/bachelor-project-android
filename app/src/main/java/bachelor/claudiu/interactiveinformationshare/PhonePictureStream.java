@@ -8,8 +8,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import static bachelor.claudiu.interactiveinformationshare.Utils.stopScheduledExecutorService;
 
 /**
  * Created by claudiu on 04.05.2017.
@@ -21,14 +24,14 @@ public class PhonePictureStream
 	public static final  int PHONE_PICTURE_SOCKET_TIMEOUT = 3000;
 	public static final  int DATA_THRESHOLD               = 50;
 
-	private Timer mBeaconTimer;
+	private ScheduledExecutorService mBeaconTimer;
 	// TODO: Make this a thread that cycles until interrupted.
-	private Timer mServerTimer;
+	private ScheduledExecutorService mServerTimer;
 	private ConnectionsManager mConnectionsManager = new ConnectionsManager();
 	private ServerSocket mServerSocket;
 	private ByteArrayOutputStream mByteArrayOutputStream = new ByteArrayOutputStream();
 
-	private class SocketAccepter extends TimerTask
+	private class SocketAccepter implements Runnable
 	{
 		private static final int SOCKET_ACCEPTER_PERIOD = 500;
 
@@ -61,11 +64,11 @@ public class PhonePictureStream
 	public void open() throws SocketException
 	{
 		Utils.log(Constants.Classes.PHONE_PICTURE_STREAM, "Opening...");
-		mServerTimer = new Timer();
-		mServerTimer.schedule(new SocketAccepter(), 0, SocketAccepter.SOCKET_ACCEPTER_PERIOD);
+		mServerTimer = Executors.newScheduledThreadPool(1);
+		mServerTimer.scheduleWithFixedDelay(new SocketAccepter(), 0, SocketAccepter.SOCKET_ACCEPTER_PERIOD, TimeUnit.MILLISECONDS);
 
-		mBeaconTimer = new Timer();
-		mBeaconTimer.schedule(new BroadcastBeaconTimerTask(Constants.Ports.PICTURE_STREAM_BEACON_PORT), 0, BroadcastBeaconTimerTask.BEACON_PERIOD);
+		mBeaconTimer = Executors.newScheduledThreadPool(1);
+		mBeaconTimer.scheduleWithFixedDelay(new BroadcastBeaconTimerTask(Constants.Ports.PICTURE_STREAM_BEACON_PORT), 0, BroadcastBeaconTimerTask.BEACON_PERIOD, TimeUnit.MILLISECONDS);
 		Utils.log(Constants.Classes.PHONE_PICTURE_STREAM, "Opened");
 	}
 
@@ -102,8 +105,8 @@ public class PhonePictureStream
 	public void cancel()
 	{
 		Utils.log(Constants.Classes.PHONE_PICTURE_STREAM, "Cancelling...");
-		Utils.stopTimer(mBeaconTimer);
-		Utils.stopTimer(mServerTimer);
+		stopScheduledExecutorService(mBeaconTimer);
+		stopScheduledExecutorService(mServerTimer);
 		try
 		{
 			mServerSocket.close();

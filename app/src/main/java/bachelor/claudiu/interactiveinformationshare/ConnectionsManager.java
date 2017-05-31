@@ -14,13 +14,24 @@ public class ConnectionsManager
 
 	private List<Connection> mConnections = new LinkedList<>();
 
-	public void addConnection(Connection connection)
+	public void addConnection(Connection newConnection)
 	{
 
-		Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Adding connection...");
+		Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Adding connection... " + newConnection.getSocket().getInetAddress().getHostAddress());
 		synchronized (mObject)
 		{
-			mConnections.add(connection);
+			String newConnectionAddress = newConnection.getSocket().getInetAddress().getHostAddress();
+			for (Connection connection : mConnections)
+			{
+				String connectionAddress = connection.getSocket().getInetAddress().getHostAddress();
+				if (newConnectionAddress.equals(connectionAddress))
+				{
+					Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Connection already present.");
+					return;
+				}
+			}
+
+			mConnections.add(newConnection);
 			Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "number of connections: " + mConnections.size());
 		}
 		Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Connection added.");

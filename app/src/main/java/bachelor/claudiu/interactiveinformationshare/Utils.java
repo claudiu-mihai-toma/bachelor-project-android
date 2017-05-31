@@ -27,6 +27,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Timer;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static bachelor.claudiu.interactiveinformationshare.InteractiveInformationShareActivity.LOGS;
 
@@ -43,6 +45,19 @@ public class Utils
 		{
 			timer.cancel();
 			timer.purge();
+		}
+	}
+
+	public static void stopScheduledExecutorService(ScheduledExecutorService scheduledExecutorService)
+	{
+		scheduledExecutorService.shutdown();
+		try
+		{
+			scheduledExecutorService.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+		}
+		catch (InterruptedException e)
+		{
+			//e.printStackTrace();
 		}
 	}
 

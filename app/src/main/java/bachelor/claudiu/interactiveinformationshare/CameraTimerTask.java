@@ -1,12 +1,10 @@
 package bachelor.claudiu.interactiveinformationshare;
 
-import java.util.TimerTask;
-
 /**
  * Created by claudiu on 04.05.2017.
  */
 
-public class CameraTimerTask extends TimerTask
+public class CameraTimerTask implements Runnable
 {
 	private Object mObject = new Object();
 

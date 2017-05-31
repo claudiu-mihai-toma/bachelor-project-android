@@ -3,7 +3,11 @@ package bachelor.claudiu.interactiveinformationshare;
 import android.hardware.Camera;
 import android.view.SurfaceView;
 
-import java.util.Timer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import static bachelor.claudiu.interactiveinformationshare.Utils.stopScheduledExecutorService;
 
 /**
  * Created by claudiu on 04.05.2017.
@@ -13,11 +17,11 @@ public class CameraTimer
 {
 	private static final int CAMERA_PERIOD = 200;
 
-	private Timer                mTimer;
-	private Camera               mCamera;
-	private PictureTakenCallback mPictureTakenCallback;
-	private SurfaceView          mSurfaceView;
-	private Preview              mPreview;
+	private ScheduledExecutorService mTimer;
+	private Camera                   mCamera;
+	private PictureTakenCallback     mPictureTakenCallback;
+	private SurfaceView              mSurfaceView;
+	private Preview                  mPreview;
 
 	public CameraTimer(SurfaceView surfaceView, PictureTakenCallback pictureTakenCallback)
 	{
@@ -49,16 +53,16 @@ public class CameraTimer
 	{
 		mPreview.setCamera(mCamera);
 		Utils.log(Constants.Classes.CAMERA_TIMER, "Scheduling...");
-		mTimer = new Timer();
-		mTimer.schedule(new CameraTimerTask(mPictureTakenCallback, mPreview), 0, CAMERA_PERIOD);
+		mTimer = Executors.newScheduledThreadPool(1);
+		mTimer.scheduleWithFixedDelay(new CameraTimerTask(mPictureTakenCallback, mPreview), 0, CAMERA_PERIOD, TimeUnit.MILLISECONDS);
 		Utils.log(Constants.Classes.CAMERA_TIMER, "Scheduled.");
 	}
 
 	public void cancel()
 	{
 		Utils.log(Constants.Classes.CAMERA_TIMER, "Cancelling...");
+		stopScheduledExecutorService(mTimer);
 		mPreview.clean();
-		Utils.stopTimer(mTimer);
 		Utils.log(Constants.Classes.CAMERA_TIMER, "Releasing camera...");
 		mCamera.release();
 		Utils.log(Constants.Classes.CAMERA_TIMER, "Camera released.");

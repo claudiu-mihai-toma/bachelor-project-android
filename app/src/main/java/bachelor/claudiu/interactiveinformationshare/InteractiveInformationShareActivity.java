@@ -76,8 +76,9 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 	protected void onPause()
 	{
 		super.onPause();
-		clean();
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "onPause.");
+		clean();
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Paused.");
 	}
 
 	@Override
@@ -182,7 +183,7 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 
 	private void clean()
 	{
-		mProcessingPictureTaken.set(true);
+		//mProcessingPictureTaken.set(true);
 		stopCameraTimer();
 		stopPhonePictureStream();
 	}
@@ -234,15 +235,22 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 
 	private void transferContent()
 	{
-		clean();
-		if (mSendContent)
+		runOnUiThread(new Runnable()
 		{
-			sendContentToDesktop();
-		}
-		else
-		{
-			receiveContentFromDesktop();
-		}
+			@Override
+			public void run()
+			{
+				clean();
+				if (mSendContent)
+				{
+					sendContentToDesktop();
+				}
+				else
+				{
+					receiveContentFromDesktop();
+				}
+			}
+		});
 	}
 
 	private void sendContentToDesktop()
