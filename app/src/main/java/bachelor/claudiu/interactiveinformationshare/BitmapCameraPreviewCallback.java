@@ -29,7 +29,7 @@ public class BitmapCameraPreviewCallback implements Camera.PreviewCallback
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		YuvImage yuvImage = new YuvImage(data, ImageFormat.NV21, mPreviewSize.width, mPreviewSize.height,
 				null);
-		yuvImage.compressToJpeg(new Rect(0, 0, mPreviewSize.width, mPreviewSize.height), 50, out);
+		yuvImage.compressToJpeg(new Rect(0, 0, mPreviewSize.width, mPreviewSize.height), 100, out);
 		byte[] imageBytes = out.toByteArray();
 
 		mBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);

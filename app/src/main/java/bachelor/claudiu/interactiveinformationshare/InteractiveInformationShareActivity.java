@@ -40,13 +40,6 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 		finish();
 	}
 
-	private void clean()
-	{
-		// TODO: Add complete cleanup here!
-		stopCameraTimer();
-		mPhonePictureStream.cancel();
-	}
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -55,8 +48,8 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Welcome to create!");
 
+		mSurfaceView = (SurfaceView) findViewById(R.id.camera_surfaceview);
 		handleIntent();
-
 		if (mSendContent)
 		{
 			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "App will send content.");
@@ -65,25 +58,6 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 		{
 			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "App will receive content.");
 		}
-
-		mProcessingPictureTaken = new AtomicBoolean(false);
-
-		mSurfaceView = (SurfaceView) findViewById(R.id.camera_surfaceview);
-
-		try
-		{
-			mPhonePictureStream = new PhonePictureStream();
-			mPhonePictureStream.open();
-		}
-		catch (IOException e)
-		{
-			finishWithToast("Cannot start phone picture stream!");
-			return;
-		}
-
-		startCameraTimer();
-
-		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Finished starting app.");
 	}
 
 	@Override
@@ -91,12 +65,18 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 	{
 		super.onResume();
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "onResume.");
+
+		mProcessingPictureTaken = new AtomicBoolean(false);
+		initialize();
+
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Finished starting app.");
 	}
 
 	@Override
 	protected void onPause()
 	{
 		super.onPause();
+		clean();
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "onPause.");
 	}
 
@@ -120,6 +100,12 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 	@Override
 	public void contentReceivedCallback(Content content)
 	{
+		if (mContent == null)
+		{
+			finishWithToast("Error encountered while receiving content.");
+			return;
+		}
+
 		mContent = content;
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Content successfully received.");
 		String title = mContent.getTitle();
@@ -175,7 +161,7 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 					}
 					else
 					{
-						Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Valid desktop address received.");
+						Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Valid desktop address from picture stream.");
 						transferContent();
 					}
 				}
@@ -187,10 +173,23 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 		}
 	}
 
-	public void startCameraTimer()
+	private void initialize()
+	{
+		mProcessingPictureTaken.set(false);
+		startPhonePictureStream();
+		startCameraTimer();
+	}
+
+	private void clean()
+	{
+		mProcessingPictureTaken.set(true);
+		stopCameraTimer();
+		stopPhonePictureStream();
+	}
+
+	private void startCameraTimer()
 	{
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Starting/Scheduling camera timer...");
-		stopCameraTimer();
 		mCameraTimer = new CameraTimer(mSurfaceView, this);
 		mCameraTimer.schedule();
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Camera timer started/scheduled.");
@@ -207,8 +206,35 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Camera timer stopped.");
 	}
 
+	private void startPhonePictureStream()
+	{
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Starting phone picture stream...");
+		try
+		{
+			mPhonePictureStream = new PhonePictureStream();
+			mPhonePictureStream.open();
+		}
+		catch (IOException e)
+		{
+			finishWithToast("Cannot start phone picture stream!");
+		}
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Phone picture stream started.");
+	}
+
+	private void stopPhonePictureStream()
+	{
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Stopping phone picture stream...");
+		if (mPhonePictureStream != null)
+		{
+			mPhonePictureStream.cancel();
+			mPhonePictureStream = null;
+		}
+		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Phone picture stream stopped.");
+	}
+
 	private void transferContent()
 	{
+		clean();
 		if (mSendContent)
 		{
 			sendContentToDesktop();

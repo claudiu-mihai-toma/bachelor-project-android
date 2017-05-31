@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -59,7 +58,7 @@ public class PhonePictureStream
 		Utils.log(Constants.Classes.PHONE_PICTURE_STREAM, "Created.");
 	}
 
-	public void open() throws SocketException, UnknownHostException
+	public void open() throws SocketException
 	{
 		Utils.log(Constants.Classes.PHONE_PICTURE_STREAM, "Opening...");
 		mServerTimer = new Timer();
@@ -105,7 +104,6 @@ public class PhonePictureStream
 		Utils.log(Constants.Classes.PHONE_PICTURE_STREAM, "Cancelling...");
 		Utils.stopTimer(mBeaconTimer);
 		Utils.stopTimer(mServerTimer);
-		mConnectionsManager.closeConnections();
 		try
 		{
 			mServerSocket.close();
@@ -122,6 +120,7 @@ public class PhonePictureStream
 		{
 			Utils.log(Constants.Classes.PHONE_PICTURE_STREAM, "!!! Failed to close output stream !!!");
 		}
+		mConnectionsManager.closeConnections();
 		Utils.log(Constants.Classes.PHONE_PICTURE_STREAM, "Cancelled.");
 	}
 }

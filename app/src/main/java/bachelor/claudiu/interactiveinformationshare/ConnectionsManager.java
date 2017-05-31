@@ -1,7 +1,6 @@
 package bachelor.claudiu.interactiveinformationshare;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -161,19 +160,17 @@ public class ConnectionsManager
 		Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Cleaning connections...");
 		synchronized (mObject)
 		{
-			for (Iterator<Connection> iterator = mConnections.iterator(); iterator.hasNext(); )
+			List<Connection> brokenConnections = new LinkedList<>();
+			for (Connection connection : mConnections)
 			{
-				Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "before get next");
-				Connection connection = iterator.next();
-				Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "after get next");
-
 				if (connection.isBroken())
 				{
 					connection.clear();
-					mConnections.remove(connection);
+					brokenConnections.add(connection);
 					Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Removed some connection.");
 				}
 			}
+			mConnections.removeAll(brokenConnections);
 		}
 		Utils.log(Constants.Classes.CONNECTIONS_MANAGER, "Finished cleaning connections.");
 	}

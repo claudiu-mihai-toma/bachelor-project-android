@@ -7,7 +7,6 @@ import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.TimerTask;
 
@@ -24,7 +23,7 @@ public class BroadcastBeaconTimerTask extends TimerTask
 	private DatagramSocket mDatagramSocket;
 	private int            mPort;
 
-	public BroadcastBeaconTimerTask(int port) throws SocketException, UnknownHostException
+	public BroadcastBeaconTimerTask(int port) throws SocketException
 	{
 		Utils.log(Constants.Classes.BROADCAST_BEACON_TIMER_TASK, "Constructing...");
 		mPort = port;

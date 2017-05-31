@@ -57,6 +57,7 @@ public class CameraTimer
 	public void cancel()
 	{
 		Utils.log(Constants.Classes.CAMERA_TIMER, "Cancelling...");
+		mPreview.clean();
 		Utils.stopTimer(mTimer);
 		Utils.log(Constants.Classes.CAMERA_TIMER, "Releasing camera...");
 		mCamera.release();

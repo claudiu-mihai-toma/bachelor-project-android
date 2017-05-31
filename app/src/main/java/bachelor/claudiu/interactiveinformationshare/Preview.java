@@ -72,15 +72,17 @@ public class Preview implements SurfaceHolder.Callback
 	{
 		List<Camera.Size> localSizes = mCamera.getParameters().getSupportedPreviewSizes();
 		mPreviewSize = localSizes.get(localSizes.size() / 4);
+		//mPreviewSize = localSizes.get(0);
 
 		Camera.Parameters parameters = mCamera.getParameters();
-		Utils.log(Constants.Classes.PREVIEW, "Get preview size " + parameters.getPreviewSize().width + "x" +
-				parameters.getPreviewSize().height);
+		Utils.log(Constants.Classes.PREVIEW, "Get preview size " + parameters.getPreviewSize().width + "x" + parameters.getPreviewSize().height);
 		Utils.log(Constants.Classes.PREVIEW, "Set preview size " + mPreviewSize.width + "x" + mPreviewSize.height);
 		parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
 		parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+		parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
 		mCamera.setParameters(parameters);
 		mCamera.setDisplayOrientation(90);
+		;
 	}
 
 	private void startPreview()
@@ -141,7 +143,7 @@ public class Preview implements SurfaceHolder.Callback
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder)
 	{
-		Utils.log(Constants.Classes.PREVIEW, "surfaceDestroyed");
+		Utils.log(Constants.Classes.PREVIEW, "surfaceDestroyed " + mCamera);
 		// Surface will be destroyed when we return, so stop the preview.
 		if (mCamera != null)
 		{
@@ -186,5 +188,14 @@ public class Preview implements SurfaceHolder.Callback
 		}
 
 		return bitmap;
+	}
+
+	public void clean()
+	{
+		Utils.log(Constants.Classes.PREVIEW, "Cleaning...");
+		mCamera.setPreviewCallback(null);
+		mHolder.removeCallback(this);
+		stopPreviewAndFreeCamera();
+		Utils.log(Constants.Classes.PREVIEW, "Cleaned.");
 	}
 }
