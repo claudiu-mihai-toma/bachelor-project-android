@@ -13,10 +13,12 @@ import android.provider.MediaStore;
 import android.view.SurfaceView;
 import android.widget.Toast;
 
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class InteractiveInformationShareActivity extends Activity implements ContentSentCallback, PictureTakenCallback, ContentReceivedCallback
@@ -50,6 +52,7 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 
 		mSurfaceView = (SurfaceView) findViewById(R.id.camera_surfaceview);
 		handleIntent();
+
 		if (mSendContent)
 		{
 			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "App will send content.");
@@ -101,13 +104,12 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 	@Override
 	public void contentReceivedCallback(Content content)
 	{
+		mContent = content;
 		if (mContent == null)
 		{
 			finishWithToast("Error encountered while receiving content.");
 			return;
 		}
-
-		mContent = content;
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Content successfully received.");
 		String title = mContent.getTitle();
 		byte[] data = mContent.getData();
@@ -118,6 +120,11 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Content length: [" + data.length + "]");
 			Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
 			String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, title, Constants.Misc.PICTURE_DESCRIPTION);
+			if (path == null)
+			{
+				finishWithToast("Unable to store content!");
+				return;
+			}
 			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Content stored to path: [" + Utils.getRealPathFromURI(this, Uri.parse(path)) + "]");
 		}
 		else
@@ -283,6 +290,7 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 		}
 		else
 		{
+			mSendContent = true;
 			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Intent received [" + intent.getExtras() + "]");
 
 			String action = intent.getAction();
@@ -300,15 +308,11 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 					{
 						handleSendImage(intent); // Handle single image being sent
 					}
-					else
-					{
-						mSendContent = false;
-					}
 				}
 			}
-			else
+			if (mContent == null)
 			{
-				mSendContent = false;
+				finishWithToast("An error occurred while processing the shared content.");
 			}
 		}
 	}
@@ -346,6 +350,21 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 		{
 			e.printStackTrace();
 			Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "toByteArray exception: {" + e.toString() + "}");
+			try
+			{
+				InputStream is = getContentResolver().openInputStream(uri);
+				if (is == null)
+				{
+					Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Content input stream is null!");
+					return;
+				}
+				data = ByteStreams.toByteArray(is);
+			}
+			catch (IOException e1)
+			{
+				Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Cannot resolve/read content!");
+				e1.printStackTrace();
+			}
 		}
 
 		if (data == null)

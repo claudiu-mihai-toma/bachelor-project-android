@@ -62,6 +62,9 @@ class ReceiveContentAsyncTask extends AsyncTask<Void, Void, Void>
 
 			Utils.log(Constants.Classes.RECEIVE_CONTENT_ASYNC_TASK, "Receive succeeded!");
 			Utils.log(Constants.Classes.RECEIVE_CONTENT_ASYNC_TASK, "Content: " + mContent);
+			Utils.log(Constants.Classes.RECEIVE_CONTENT_ASYNC_TASK, "Content type: " + mContent.getType());
+			Utils.log(Constants.Classes.RECEIVE_CONTENT_ASYNC_TASK, "Content title: " + mContent.getTitle());
+			Utils.log(Constants.Classes.RECEIVE_CONTENT_ASYNC_TASK, "Content data: " + mContent.getData());
 		}
 		catch (IOException e)
 		{
