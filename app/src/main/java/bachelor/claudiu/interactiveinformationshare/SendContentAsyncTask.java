@@ -13,7 +13,7 @@ class SendContentAsyncTask extends AsyncTask<Void, Void, Void>
 {
 	private ContentSentCallback mContentSentCallback;
 	private String              mDesktopAddress;
-	private Content              mContent;
+	private Content             mContent;
 
 	public SendContentAsyncTask(ContentSentCallback contentSentCallback, String desktopAddress, Content content)
 	{
@@ -29,11 +29,11 @@ class SendContentAsyncTask extends AsyncTask<Void, Void, Void>
 	{
 		try
 		{
-			Utils.log(Constants.Classes.SEND_CONTENT_ASYNC_TASK, "Sending data " + mContent + " to " +
-					mDesktopAddress);
+			Utils.log(Constants.Classes.SEND_CONTENT_ASYNC_TASK, "Sending data " + mContent + " to " + mDesktopAddress);
 
 			Utils.log(Constants.Classes.SEND_CONTENT_ASYNC_TASK, "Creating socket...");
 			Socket socket = new Socket(mDesktopAddress, Constants.Ports.CONTENT_RECEIVER_PORT);
+			socket.setSoTimeout(Constants.Timeouts.SOCKET_TIMEOUT);
 			Utils.log(Constants.Classes.SEND_CONTENT_ASYNC_TASK, "Socket created!");
 
 			DataOutputStream os = new DataOutputStream(socket.getOutputStream());

@@ -10,7 +10,14 @@ public class Constants
 	{
 		public static final int PICTURE_STREAM_SERVER_PORT = 55001;
 		public static final int PICTURE_STREAM_BEACON_PORT = 55002;
-		public static final int CONTENT_RECEIVER_PORT      = 55004;
+		public static final int CONTENT_RECEIVER_PORT      = 55003;
+		public static final int CONTENT_SENDER_PORT        = 55004;
+	}
+
+	public class Timeouts
+	{
+		public static final int SOCKET_TIMEOUT               = 500;
+		public static final int PHONE_PICTURE_SOCKET_TIMEOUT = 3000;
 	}
 
 	public class Classes

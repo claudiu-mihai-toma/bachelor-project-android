@@ -20,8 +20,6 @@ import static bachelor.claudiu.interactiveinformationshare.Utils.stopScheduledEx
 
 public class PhonePictureStream
 {
-	private static final int SOCKET_TIMEOUT               = 500;
-	public static final  int PHONE_PICTURE_SOCKET_TIMEOUT = 3000;
 	public static final  int DATA_THRESHOLD               = 50;
 
 	private ScheduledExecutorService mBeaconTimer;
@@ -42,7 +40,7 @@ public class PhonePictureStream
 			{
 				//Utils.log(Constants.Classes.PHONE_PICTURE_STREAM, "Accepting socket...");
 				Socket socket = mServerSocket.accept();
-				socket.setSoTimeout(PHONE_PICTURE_SOCKET_TIMEOUT);
+				socket.setSoTimeout(Constants.Timeouts.PHONE_PICTURE_SOCKET_TIMEOUT);
 				mConnectionsManager.addConnection(new Connection(socket));
 				Utils.log(Constants.Classes.PHONE_PICTURE_STREAM, "Socket accepted.");
 			}
@@ -57,7 +55,7 @@ public class PhonePictureStream
 	{
 		Utils.log(Constants.Classes.PHONE_PICTURE_STREAM, "Creating...");
 		mServerSocket = new ServerSocket(Constants.Ports.PICTURE_STREAM_SERVER_PORT);
-		mServerSocket.setSoTimeout(SOCKET_TIMEOUT);
+		mServerSocket.setSoTimeout(Constants.Timeouts.SOCKET_TIMEOUT);
 		Utils.log(Constants.Classes.PHONE_PICTURE_STREAM, "Created.");
 	}
 

@@ -107,7 +107,8 @@ public class InteractiveInformationShareActivity extends Activity implements Con
 		mContent = content;
 		if (mContent == null)
 		{
-			finishWithToast("Error encountered while receiving content.");
+			//finishWithToast("Error encountered while receiving content.");
+			initialize();
 			return;
 		}
 		Utils.log(Constants.Classes.INTERACTIVE_INFORMATION_SHARE, "Content successfully received.");

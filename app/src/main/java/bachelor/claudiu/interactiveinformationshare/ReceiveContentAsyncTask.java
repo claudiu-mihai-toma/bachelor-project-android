@@ -32,7 +32,8 @@ class ReceiveContentAsyncTask extends AsyncTask<Void, Void, Void>
 			Utils.log(Constants.Classes.RECEIVE_CONTENT_ASYNC_TASK, "Receiving data from " + mDesktopAddress);
 
 			Utils.log(Constants.Classes.RECEIVE_CONTENT_ASYNC_TASK, "Creating socket...");
-			Socket socket = new Socket(mDesktopAddress, Constants.Ports.CONTENT_RECEIVER_PORT);
+			Socket socket = new Socket(mDesktopAddress, Constants.Ports.CONTENT_SENDER_PORT);
+			socket.setSoTimeout(Constants.Timeouts.SOCKET_TIMEOUT);
 			Utils.log(Constants.Classes.RECEIVE_CONTENT_ASYNC_TASK, "Socket created!");
 
 			DataInputStream is = new DataInputStream(socket.getInputStream());
